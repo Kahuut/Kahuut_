@@ -25,6 +25,9 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erfolgreich angemeldet')),
         );
+
+        // TODO: Hier kannst du zur Benutzer-Startseite navigieren
+        // Beispiel: Navigator.pushReplacement(...);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Ungültige Anmeldedaten')),
@@ -44,36 +47,68 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Sign In as User")),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
+      backgroundColor: const Color(0xFFEFF8FF),
+      body: Center(
+        child: SingleChildScrollView(
           child: Column(
             children: [
-              TextFormField(
-                controller: _usernameController,
-                decoration: const InputDecoration(labelText: 'Benutzername'),
-                validator: (value) =>
-                value!.isEmpty ? 'Bitte Benutzername eingeben' : null,
+              const SizedBox(height: 40),
+              const Text(
+                'User Login',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'E-Mail'),
-                validator: (value) =>
-                value!.isEmpty ? 'Bitte E-Mail eingeben' : null,
-              ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Passwort'),
-                obscureText: true,
-                validator: (value) =>
-                value!.length < 6 ? 'Mindestens 6 Zeichen' : null,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _signIn,
-                child: const Text('Anmelden'),
+              const SizedBox(height: 30),
+              Container(
+                padding: const EdgeInsets.all(20),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _usernameController,
+                        decoration:
+                        const InputDecoration(labelText: 'Benutzername'),
+                        validator: (value) =>
+                        value!.isEmpty ? 'Bitte Benutzername eingeben' : null,
+                      ),
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(labelText: 'E-Mail'),
+                        validator: (value) =>
+                        value!.isEmpty ? 'Bitte E-Mail eingeben' : null,
+                      ),
+                      TextFormField(
+                        controller: _passwordController,
+                        decoration:
+                        const InputDecoration(labelText: 'Passwort'),
+                        obscureText: true,
+                        validator: (value) => value!.length < 6
+                            ? 'Mindestens 6 Zeichen'
+                            : null,
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _signIn,
+                        child: const Text('Anmelden'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
