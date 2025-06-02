@@ -15,7 +15,7 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
 
   void _register() {
     if (_formKey.currentState!.validate()) {
-      // Registrierung durchführen (z. B. API-Aufruf)
+      // // Registrierung durchführen (z. B. API-Aufruf)
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('User erfolgreich registriert')),
       );
