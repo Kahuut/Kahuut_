@@ -33,36 +33,112 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Sign Up as User")),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
+      backgroundColor: const Color(0xFFEFF8FF),
+      body: Center(
+        child: SingleChildScrollView(
           child: Column(
             children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: (value) =>
-                value!.isEmpty ? 'Bitte Namen eingeben' : null,
+              const SizedBox(height: 40),
+              const Text(
+                'Sign Up as User',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'E-Mail'),
-                validator: (value) =>
-                value!.isEmpty ? 'Bitte E-Mail eingeben' : null,
-              ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Passwort'),
-                obscureText: true,
-                validator: (value) =>
-                value!.length < 6 ? 'Mindestens 6 Zeichen' : null,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _register,
-                child: const Text('Registrieren'),
+              const SizedBox(height: 30),
+              Container(
+                padding: const EdgeInsets.all(20),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(labelText: 'Name'),
+                        validator: (value) =>
+                        value!.isEmpty ? 'Bitte Namen eingeben' : null,
+                      ),
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          labelText: 'E-Mail',
+                          hintText: 'Value',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Bitte E-Mail eingeben';
+                          }
+                          final emailRegExp =
+                          RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                          if (!emailRegExp.hasMatch(value)) {
+                            return 'Bitte gültige E-Mail eingeben';
+                          }
+                          return null;
+                        },
+                      ),
+                      TextFormField(
+                        controller: _passwordController,
+                        decoration:
+                        const InputDecoration(labelText: 'Passwort'),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Bitte Passwort eingeben';
+                          }
+                          if (value.length < 6 &&
+                              !RegExp(r'[A-Z]').hasMatch(value) &&
+                              !RegExp(r'[!@#\$%^&*(),.?":{}|<>]')
+                                  .hasMatch(value)) {
+                            return 'Mindestens 6 Zeichen, ein Großbuchstabe und ein Sonderzeichen';
+                          }
+                          if (!RegExp(r'[A-Z]').hasMatch(value) &&
+                              !RegExp(r'[!@#\$%^&*(),.?":{}|<>]')
+                                  .hasMatch(value)) {
+                            return 'Mindestens ein Großbuchstabe und ein Sonderzeichen';
+                          }
+                          if (value.length < 6 &&
+                              !RegExp(r'[A-Z]').hasMatch(value)) {
+                            return 'Mindestens 6 Zeichen und ein Großbuchstabe';
+                          }
+                          if (value.length < 6 &&
+                              !RegExp(r'[!@#\$%^&*(),.?":{}|<>]')
+                                  .hasMatch(value)) {
+                            return 'Mindestens 6 Zeichen und ein Sonderzeichen';
+                          }
+                          if (value.length < 6) {
+                            return 'Mindestens 6 Zeichen';
+                          }
+                          if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                            return 'Mindestens ein Großbuchstabe';
+                          }
+                          if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>]')
+                              .hasMatch(value)) {
+                            return 'Mindestens ein Sonderzeichen';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _register,
+                        child: const Text('Registrieren'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
