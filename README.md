@@ -1,4 +1,6 @@
-# flutter2
+# Kahuut
+Wir machen eine Quizz-App wie Kahoot, der Lehrer kann ein Quizz erstellen und die Schüler können sich einloggen und deise Quizz spielen.
+
 
 A new Flutter project.
 
