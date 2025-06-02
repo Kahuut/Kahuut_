@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'reg.dart';
 
 void main() {
   runApp(const MyApp());
@@ -45,8 +46,12 @@ class WelcomePage extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        // Registrierungsaktion
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const RegisterPage()),
+                        );
                       },
+
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.grey[300],
                         foregroundColor: Colors.black,
