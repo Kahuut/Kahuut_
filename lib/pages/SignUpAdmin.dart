@@ -88,7 +88,7 @@ class _SignUpAsAdminPageState extends State<SignUpAsAdminPage> {
                           }
                           return null;
                         },
-                      ),//
+                      ),
                       TextFormField(
                         controller: _passwordController,
                         decoration:
