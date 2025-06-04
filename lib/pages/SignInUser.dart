@@ -26,8 +26,8 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
           const SnackBar(content: Text('Erfolgreich angemeldet')),
         );
 
-        // TODO: Hier kannst du zur Benutzer-Startseite navigieren
-        // Beispiel: Navigator.pushReplacement(...);
+        // TODO: Weiterleitung zur Benutzer-Startseite
+        // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => UserStartseite()));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Ungültige Anmeldedaten')),
@@ -48,18 +48,17 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEFF8FF),
+      appBar: AppBar(
+        title: const Text('User Login'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context), // Zurück zur vorherigen Seite
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 40),
-              const Text(
-                'User Login',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
               const SizedBox(height: 30),
               Container(
                 padding: const EdgeInsets.all(20),
@@ -81,8 +80,7 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
                     children: [
                       TextFormField(
                         controller: _usernameController,
-                        decoration:
-                        const InputDecoration(labelText: 'Benutzername'),
+                        decoration: const InputDecoration(labelText: 'Benutzername'),
                         validator: (value) =>
                         value!.isEmpty ? 'Bitte Benutzername eingeben' : null,
                       ),
@@ -94,12 +92,10 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
                       ),
                       TextFormField(
                         controller: _passwordController,
-                        decoration:
-                        const InputDecoration(labelText: 'Passwort'),
+                        decoration: const InputDecoration(labelText: 'Passwort'),
                         obscureText: true,
-                        validator: (value) => value!.length < 6
-                            ? 'Mindestens 6 Zeichen'
-                            : null,
+                        validator: (value) =>
+                        value!.length < 6 ? 'Mindestens 6 Zeichen' : null,
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(

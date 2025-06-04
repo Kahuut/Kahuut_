@@ -20,19 +20,18 @@ class _SignInAsAdminPageState extends State<SignInAsAdminPage> {
     final password = _passwordController.text;
 
     if (_formKey.currentState!.validate()) {
-      if (username == 'admin1' &&
-          email == 'admin1@gmail.com' &&
-          password == 'admin123') {
+      if (username == 'a' &&
+          email == 'a' &&
+          password == 'a') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Admin erfolgreich angemeldet')),
         );
 
-        Future.delayed(const Duration(milliseconds: 500), () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const AdminStartseite()),
-          );
-        });
+        // ✅ Weiterleitung zur AdminStartseite nach erfolgreicher Anmeldung
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminStartseite()),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Ungültige Admin-Daten')),
@@ -53,18 +52,17 @@ class _SignInAsAdminPageState extends State<SignInAsAdminPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEFF8FF),
+      appBar: AppBar(
+        title: const Text('Admin Login'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 40),
-              const Text(
-                'Admin Login',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
               const SizedBox(height: 30),
               Container(
                 padding: const EdgeInsets.all(20),
@@ -86,25 +84,19 @@ class _SignInAsAdminPageState extends State<SignInAsAdminPage> {
                     children: [
                       TextFormField(
                         controller: _usernameController,
-                        decoration:
-                        const InputDecoration(labelText: 'Benutzername'),
-                        validator: (value) =>
-                        value!.isEmpty ? 'Bitte Benutzername eingeben' : null,
+                        decoration: const InputDecoration(labelText: 'Benutzername'),
+                        validator: (value) => value!.isEmpty ? 'Bitte Benutzername eingeben' : null,
                       ),
                       TextFormField(
                         controller: _emailController,
                         decoration: const InputDecoration(labelText: 'E-Mail'),
-                        validator: (value) =>
-                        value!.isEmpty ? 'Bitte E-Mail eingeben' : null,
+                        validator: (value) => value!.isEmpty ? 'Bitte E-Mail eingeben' : null,
                       ),
                       TextFormField(
                         controller: _passwordController,
-                        decoration:
-                        const InputDecoration(labelText: 'Passwort'),
+                        decoration: const InputDecoration(labelText: 'Passwort'),
                         obscureText: true,
-                        validator: (value) => value!.length < 6
-                            ? 'Mindestens 6 Zeichen'
-                            : null,
+                        validator: (value) => value!.length < 1 ? 'Mindestens 1 Zeichen' : null,
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
