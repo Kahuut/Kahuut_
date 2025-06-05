@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'topics.dart';
+import 'start_the_game.dart'; // NEU
 
 class AdminStartseite extends StatefulWidget {
   const AdminStartseite({super.key});
@@ -70,21 +71,26 @@ class _AdminStartseiteState extends State<AdminStartseite> {
             child: Column(
               children: [
                 const SizedBox(height: 60),
-                const Icon(Icons.account_circle, size: 80, color: Colors.black54),
+                const Icon(Icons.account_circle,
+                    size: 80, color: Colors.black54),
                 const SizedBox(height: 20),
                 _buildMenuButton(context, 'Settings', Icons.settings, () {
-                  // bleibe auf derselben Seite
+                  // Bleibe auf derselben Seite
                 }),
                 _buildMenuButton(context, 'Topics', Icons.topic, () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const TopicsPage()),
+                    MaterialPageRoute(builder: (context) => const TopicsPage()),
                   );
                 }),
-                _buildMenuButton(context, 'Start the game', Icons.play_arrow, () {
-                  // TODO
-                }),
+                _buildMenuButton(context, 'Start the game', Icons.play_arrow,
+                        () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const StartTheGamePage()),
+                      );
+                    }),
               ],
             ),
           ),
@@ -138,7 +144,8 @@ class _AdminStartseiteState extends State<AdminStartseite> {
                         ElevatedButton(
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Daten gespeichert')),
+                              const SnackBar(
+                                  content: Text('Daten gespeichert')),
                             );
                           },
                           child: const Text('Speichern'),

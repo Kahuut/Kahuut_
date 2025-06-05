@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'AdminStartseite.dart';
+import 'add_new_topic.dart';
 
 class TopicsPage extends StatelessWidget {
   const TopicsPage({super.key});
@@ -66,6 +67,7 @@ class TopicsPage extends StatelessWidget {
             ),
           ),
 
+
           // Hauptbereich
           Expanded(
             child: Container(
@@ -75,12 +77,22 @@ class TopicsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewTopicPage()));
-                    },
-                    child: const Text('Add new topic'),
-                  ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddNewTopicPage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[600],
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                child: const Text("Add new topic"),
+              ),
+
+
                   const SizedBox(height: 20),
                   const Text(
                     'Available topics:',
