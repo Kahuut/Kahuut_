@@ -37,8 +37,7 @@ class _SignInAsAdminPageState extends State<SignInAsAdminPage> {
           const SnackBar(content: Text('Ungültige Admin-Daten')),
         );
       }
-    }
-  }
+    }  }
 
   @override
   void dispose() {

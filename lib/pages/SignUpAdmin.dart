@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter2/pages/AdminBereich/AdminStartseite.dart';
 
 class SignUpAsAdminPage extends StatefulWidget {
   const SignUpAsAdminPage({super.key});
@@ -15,9 +16,13 @@ class _SignUpAsAdminPageState extends State<SignUpAsAdminPage> {
 
   void _register() {
     if (_formKey.currentState!.validate()) {
-      // Registrierung durchführen (z. B. API-Aufruf)
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User erfolgreich registriert')),
+        const SnackBar(content: Text('Registrierung erfolgreich')),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const AdminStartseite()), // Immer navigieren
       );
     }
   }

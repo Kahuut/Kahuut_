@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter2/pages/UserBereich/UserStartseite.dart'; // Stelle sicher, dass dieser Pfad korrekt ist
 
 class SignUpAsUserPage extends StatefulWidget {
   const SignUpAsUserPage({super.key});
@@ -15,9 +16,13 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
 
   void _register() {
     if (_formKey.currentState!.validate()) {
-      // Registrierung durchführen (z. B. API-Aufruf)
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User erfolgreich registriert')),
+        const SnackBar(content: Text('Registrierung erfolgreich')),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const UserStartseite()), // Immer navigieren
       );
     }
   }
@@ -75,7 +80,7 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
                         controller: _emailController,
                         decoration: const InputDecoration(
                           labelText: 'E-Mail',
-                          hintText: 'Value',
+                          hintText: 'z. B. name@example.com',
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -91,42 +96,14 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
                       ),
                       TextFormField(
                         controller: _passwordController,
-                        decoration:
-                        const InputDecoration(labelText: 'Passwort'),
+                        decoration: const InputDecoration(labelText: 'Passwort'),
                         obscureText: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Bitte Passwort eingeben';
                           }
-                          if (value.length < 6 &&
-                              !RegExp(r'[A-Z]').hasMatch(value) &&
-                              !RegExp(r'[!@#\$%^&*(),.?":{}|<>]')
-                                  .hasMatch(value)) {
-                            return 'Mindestens 6 Zeichen, ein Großbuchstabe und ein Sonderzeichen';
-                          }
-                          if (!RegExp(r'[A-Z]').hasMatch(value) &&
-                              !RegExp(r'[!@#\$%^&*(),.?":{}|<>]')
-                                  .hasMatch(value)) {
-                            return 'Mindestens ein Großbuchstabe und ein Sonderzeichen';
-                          }
-                          if (value.length < 6 &&
-                              !RegExp(r'[A-Z]').hasMatch(value)) {
-                            return 'Mindestens 6 Zeichen und ein Großbuchstabe';
-                          }
-                          if (value.length < 6 &&
-                              !RegExp(r'[!@#\$%^&*(),.?":{}|<>]')
-                                  .hasMatch(value)) {
-                            return 'Mindestens 6 Zeichen und ein Sonderzeichen';
-                          }
                           if (value.length < 6) {
                             return 'Mindestens 6 Zeichen';
-                          }
-                          if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                            return 'Mindestens ein Großbuchstabe';
-                          }
-                          if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>]')
-                              .hasMatch(value)) {
-                            return 'Mindestens ein Sonderzeichen';
                           }
                           return null;
                         },
