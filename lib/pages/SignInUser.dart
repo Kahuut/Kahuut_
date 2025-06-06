@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'UserBereich/home.dart'; // Navigation zu Userbereich (eine Ebene höher)
 
 class SignInAsUserPage extends StatefulWidget {
   const SignInAsUserPage({super.key});
@@ -26,8 +27,10 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
           const SnackBar(content: Text('Erfolgreich angemeldet')),
         );
 
-        // TODO: Weiterleitung zur Benutzer-Startseite
-        // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => UserStartseite()));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomePage()),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Ungültige Anmeldedaten')),
