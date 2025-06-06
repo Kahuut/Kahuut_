@@ -21,33 +21,10 @@ class TopicsPage extends StatelessWidget {
                 const Icon(Icons.account_circle, size: 80, color: Colors.black54),
                 const SizedBox(height: 20),
 
-                // SETTINGS
-                InkWell(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AdminStartseite(),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                    color: Colors.grey.shade300,
-                    child: Row(
-                      children: const [
-                        Icon(Icons.settings),
-                        SizedBox(width: 10),
-                        Text('Settings'),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // TOPICS (aktiv)
+                // Neue Reihenfolge: Topics, Start the game, Settings
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  color: Colors.grey.shade700,
+                  color: Colors.grey.shade700, // aktive Seite
                   child: Row(
                     children: const [
                       Icon(Icons.topic),
@@ -56,15 +33,11 @@ class TopicsPage extends StatelessWidget {
                     ],
                   ),
                 ),
-
-                // START THE GAME → Navigation hinzufügen
                 InkWell(
                   onTap: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const StartTheGamePage(),
-                      ),
+                      MaterialPageRoute(builder: (context) => const StartTheGamePage()),
                     );
                   },
                   child: Container(
@@ -75,6 +48,25 @@ class TopicsPage extends StatelessWidget {
                         Icon(Icons.play_arrow),
                         SizedBox(width: 10),
                         Text('Start the game'),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AdminStartseite()),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                    color: Colors.grey.shade300,
+                    child: Row(
+                      children: const [
+                        Icon(Icons.settings),
+                        SizedBox(width: 10),
+                        Text('Settings'),
                       ],
                     ),
                   ),
@@ -141,8 +133,10 @@ class TopicsPage extends StatelessWidget {
                                     onPressed: () {
                                       // delete logic
                                     },
-                                    child: const Text('delete',
-                                        style: TextStyle(color: Colors.white)),
+                                    child: const Text(
+                                      'delete',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                                   ),
                                 ],
                               )

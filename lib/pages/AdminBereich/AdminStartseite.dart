@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'topics.dart';
-import 'start_the_game.dart'; // NEU
+import 'start_the_game.dart';
 
 class AdminStartseite extends StatefulWidget {
   const AdminStartseite({super.key});
@@ -71,26 +71,25 @@ class _AdminStartseiteState extends State<AdminStartseite> {
             child: Column(
               children: [
                 const SizedBox(height: 60),
-                const Icon(Icons.account_circle,
-                    size: 80, color: Colors.black54),
+                const Icon(Icons.account_circle, size: 80, color: Colors.black54),
                 const SizedBox(height: 20),
-                _buildMenuButton(context, 'Settings', Icons.settings, () {
-                  // Bleibe auf derselben Seite
-                }),
+
+                // Neue Reihenfolge: Topics, Start the game, Settings
                 _buildMenuButton(context, 'Topics', Icons.topic, () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const TopicsPage()),
                   );
                 }),
-                _buildMenuButton(context, 'Start the game', Icons.play_arrow,
-                        () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const StartTheGamePage()),
-                      );
-                    }),
+                _buildMenuButton(context, 'Start the game', Icons.play_arrow, () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const StartTheGamePage()),
+                  );
+                }),
+                _buildMenuButton(context, 'Settings', Icons.settings, () {
+                  // Bleibe auf derselben Seite
+                }),
               ],
             ),
           ),
@@ -144,8 +143,7 @@ class _AdminStartseiteState extends State<AdminStartseite> {
                         ElevatedButton(
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Daten gespeichert')),
+                              const SnackBar(content: Text('Daten gespeichert')),
                             );
                           },
                           child: const Text('Speichern'),

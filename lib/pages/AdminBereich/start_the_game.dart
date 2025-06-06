@@ -27,7 +27,6 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
   }
 
   void _chooseTopic() async {
-    // Temporäre Topic Auswahl ohne DB
     String newTopic = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const TopicsPage()),
@@ -75,19 +74,19 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
                 const SizedBox(height: 60),
                 const Icon(Icons.account_circle, size: 80, color: Colors.black54),
                 const SizedBox(height: 20),
-                _buildSidebarButton('Settings', Icons.settings, () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AdminStartseite()),
-                  );
-                }),
                 _buildSidebarButton('Topics', Icons.topic, () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const TopicsPage()),
                   );
                 }),
                 _buildSidebarButton('Start the game', Icons.play_arrow, () {}, active: true),
+                _buildSidebarButton('Settings', Icons.settings, () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AdminStartseite()),
+                  );
+                }),
               ],
             ),
           ),
@@ -100,25 +99,6 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Zurück + Titel
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      const SizedBox(width: 10),
-                      const Text(
-                        'Game Setup',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 30),
-
                   // Topic Selection Row
                   Row(
                     children: [
