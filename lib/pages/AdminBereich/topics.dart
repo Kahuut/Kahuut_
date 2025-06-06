@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'AdminStartseite.dart';
+import 'add_new_topic.dart';
+import 'start_the_game.dart';
 
 class TopicsPage extends StatelessWidget {
   const TopicsPage({super.key});
@@ -18,7 +20,8 @@ class TopicsPage extends StatelessWidget {
                 const SizedBox(height: 60),
                 const Icon(Icons.account_circle, size: 80, color: Colors.black54),
                 const SizedBox(height: 20),
-                // Menüknopf: zurück zur AdminStartseite
+
+                // SETTINGS
                 InkWell(
                   onTap: () {
                     Navigator.pushReplacement(
@@ -40,10 +43,12 @@ class TopicsPage extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                // TOPICS (aktiv)
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                   color: Colors.grey.shade700,
-                    child: Row(
+                  child: Row(
                     children: const [
                       Icon(Icons.topic),
                       SizedBox(width: 10),
@@ -51,15 +56,27 @@ class TopicsPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  color: Colors.grey.shade300,
-                  child: Row(
-                    children: const [
-                      Icon(Icons.play_arrow),
-                      SizedBox(width: 10),
-                      Text('Start the game'),
-                    ],
+
+                // START THE GAME → Navigation hinzufügen
+                InkWell(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StartTheGamePage(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                    color: Colors.grey.shade300,
+                    child: Row(
+                      children: const [
+                        Icon(Icons.play_arrow),
+                        SizedBox(width: 10),
+                        Text('Start the game'),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -77,10 +94,19 @@ class TopicsPage extends StatelessWidget {
                   const SizedBox(height: 30),
                   ElevatedButton(
                     onPressed: () {
-                      // Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewTopicPage()));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AddNewTopicPage()),
+                      );
                     },
-                    child: const Text('Add new topic'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[600],
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    ),
+                    child: const Text("Add new topic"),
                   ),
+
                   const SizedBox(height: 20),
                   const Text(
                     'Available topics:',
