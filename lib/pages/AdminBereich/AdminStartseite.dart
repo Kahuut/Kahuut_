@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../main.dart';
 import 'topics.dart';
 import 'start_the_game.dart';
 
@@ -89,6 +90,16 @@ class _AdminStartseiteState extends State<AdminStartseite> {
                 }),
                 _buildMenuButton(context, 'Settings', Icons.settings, () {
                   // Bleibe auf derselben Seite
+                }),
+
+                const Spacer(),
+
+                // Logout Button
+                _buildMenuButton(context, 'Log out', Icons.logout, () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MyApp()),
+                  );
                 }),
               ],
             ),
