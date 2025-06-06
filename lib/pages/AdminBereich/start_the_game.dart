@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'AdminStartseite.dart';
 import 'topics.dart';
+import '../../main.dart';
 
 class StartTheGamePage extends StatefulWidget {
   const StartTheGamePage({super.key});
@@ -81,12 +83,26 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
                   );
                 }),
                 _buildSidebarButton('Start the game', Icons.play_arrow, () {}, active: true),
+
                 _buildSidebarButton('Settings', Icons.settings, () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const AdminStartseite()),
                   );
+
                 }),
+                const Spacer(),
+
+                //* Logout Button
+
+                _buildSidebarButton('Log out', Icons.logout, () {
+                  Navigator.pushReplacement(
+                    context,
+                     MaterialPageRoute(builder: (context) => const MyApp()),
+                   );
+                }),
+
+
               ],
             ),
           ),

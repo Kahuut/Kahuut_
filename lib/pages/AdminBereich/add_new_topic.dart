@@ -85,6 +85,8 @@ class _AddNewTopicPageState extends State<AddNewTopicPage> {
                   );
                 }, active: true),
                 _buildSidebarButton('Start the game', Icons.play_arrow, () {}),
+
+
               ],
             ),
           ),

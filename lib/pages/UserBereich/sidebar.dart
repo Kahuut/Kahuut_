@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../main.dart';
 import 'play.dart';
 import 'settings.dart';
 import 'home.dart';
@@ -53,6 +54,15 @@ class Sidebar extends StatelessWidget {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (_) => const SettingsPage()),
+            );
+          }),
+          const Spacer(),
+
+          // Logout Button
+          buildMenuButton('Log out', Icons.logout, () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MyApp()),
             );
           }),
         ],

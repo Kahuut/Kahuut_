@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter2/main.dart';
 import 'AdminStartseite.dart';
 import 'add_new_topic.dart';
 import 'start_the_game.dart';
@@ -24,7 +25,7 @@ class TopicsPage extends StatelessWidget {
                 // Neue Reihenfolge: Topics, Start the game, Settings
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  color: Colors.grey.shade700, // aktive Seite
+                  color: Colors.grey.shade600, // aktive Seite
                   child: Row(
                     children: const [
                       Icon(Icons.topic),
@@ -67,6 +68,27 @@ class TopicsPage extends StatelessWidget {
                         Icon(Icons.settings),
                         SizedBox(width: 10),
                         Text('Settings'),
+                      ],
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MyApp()),
+                    );
+                  },
+
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                    color: Colors.grey.shade300,
+                    child: Row(
+                      children: const [
+                        Icon(Icons.logout),
+                        SizedBox(width: 10),
+                        Text('Log out'),
                       ],
                     ),
                   ),
