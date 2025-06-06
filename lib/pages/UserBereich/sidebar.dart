@@ -15,7 +15,7 @@ class Sidebar extends StatelessWidget {
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          color: isActive ? Colors.blue.shade300 : Colors.blue.shade100,
+          color: isActive ? Colors.grey.shade600 : Colors.grey.shade300,
           child: Row(
             children: [
               Icon(icon, color: Colors.black87),
@@ -29,7 +29,7 @@ class Sidebar extends StatelessWidget {
 
     return Container(
       width: 200,
-      color: Colors.blue.shade100,
+      color: Colors.grey.shade300,
       child: Column(
         children: [
           const SizedBox(height: 60),
