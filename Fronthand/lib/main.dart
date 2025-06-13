@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
-import 'pages/SignIn.dart'; // <- Importiere die neue Seite
-import 'pages/SignUp.dart'; // <- oben zu den anderen Imports
-void main() {
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'constants.dart';
+import 'pages/SignIn.dart';
+import 'pages/SignUp.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey,
+  );
+
   runApp(const MyApp());
 }
 
@@ -11,57 +21,50 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Kahuut Startscreen',
-      theme: ThemeData(useMaterial3: true),
-      home: const StartScreen(),
+      title: 'Kahuutt',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        useMaterial3: true,
+      ),
+      home: const HomeScreen(),
     );
   }
 }
 
-class StartScreen extends StatelessWidget {
-  const StartScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF8FF),
+      appBar: AppBar(
+        title: const Text('Willkommen bei Kahuutt'),
+        centerTitle: true,
+      ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Welcome to Kahuut!',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SignInPage()),
+                );
+              },
+              child: const Text('Anmelden'),
             ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                OutlinedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SignInPage()),
-                    );
-                  },
-                  child: const Text('Sign in'),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SignUpPage()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-                  child: const Text('Sign up', style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            )
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SignUpPage()),
+                );
+              },
+              child: const Text('Registrieren'),
+            ),
           ],
         ),
       ),
