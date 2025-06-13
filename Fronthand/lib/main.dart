@@ -9,7 +9,7 @@ void main() async {
 
   await Supabase.initialize(
     url: supabaseUrl,
-    anonKey: supabaseAnonKey,
+    anonKey: supabaseAnonKey,//
   );
 
   runApp(const MyApp());
