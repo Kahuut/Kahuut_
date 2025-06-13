@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'AdminBereich/AdminStartseite.dart';
 
 class SignInAsAdminPage extends StatefulWidget {
@@ -14,30 +15,45 @@ class _SignInAsAdminPageState extends State<SignInAsAdminPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void _signIn() {
+  final supabase = Supabase.instance.client;
+
+  Future<void> _signIn() async {
     final username = _usernameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     if (_formKey.currentState!.validate()) {
-      if (username == 'a' &&
-          email == 'a' &&
-          password == 'a') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Admin erfolgreich angemeldet')),
-        );
+      try {
+        // Datenbankabfrage: admin mit passenden Werten suchen
+        final response = await supabase
+            .from('Admin')
+            .select()
+            .eq('name', username)
+            .eq('email', email)
+            .eq('password', password) // Nur zu Lernzwecken unverschlüsselt
+            .maybeSingle();
 
-        // ✅ Weiterleitung zur AdminStartseite nach erfolgreicher Anmeldung
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const AdminStartseite()),
-        );
-      } else {
+        if (response != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Admin erfolgreich angemeldet')),
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminStartseite()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ungültige Admin-Daten')),
+          );
+        }
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ungültige Admin-Daten')),
+          SnackBar(content: Text('Fehler beim Anmelden: $e')),
         );
       }
-    }  }
+    }
+  }
 
   @override
   void dispose() {
@@ -95,7 +111,7 @@ class _SignInAsAdminPageState extends State<SignInAsAdminPage> {
                         controller: _passwordController,
                         decoration: const InputDecoration(labelText: 'Passwort'),
                         obscureText: true,
-                        validator: (value) => value!.length < 1 ? 'Mindestens 1 Zeichen' : null,
+                        validator: (value) => value!.isEmpty ? 'Bitte Passwort eingeben' : null,
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
