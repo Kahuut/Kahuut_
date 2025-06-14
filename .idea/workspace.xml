@@ -160,7 +160,31 @@
       <option name="project" value="LOCAL" />
       <updated>1749550769240</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Supabase connected">
+      <option name="closed" value="true" />
+      <created>1749803374926</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1749803374926</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Supabase connected">
+      <option name="closed" value="true" />
+      <created>1749803659370</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1749803659370</updated>
+    </task>
+    <task id="LOCAL-00012" summary="authentification">
+      <option name="closed" value="true" />
+      <created>1749806974712</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1749806974712</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -181,6 +205,8 @@
     <MESSAGE value="Regristrierungspage fertig, UserStartseite hinzugefügt" />
     <MESSAGE value="UserStartseite Spielen und Porfil hinzugefügt, play page und settings page hinzugefügt, home stratseite und sidebar veralgemeinert" />
     <MESSAGE value="Fronthand, Backhand ordern hinzugefügt sowie Swagger ordern hinzugefügt" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fronthand, Backhand ordern hinzugefügt sowie Swagger ordern hinzugefügt" />
+    <MESSAGE value="Supabase connected" />
+    <MESSAGE value="authentification" />
+    <option name="LAST_COMMIT_MESSAGE" value="authentification" />
   </component>
 </project>
