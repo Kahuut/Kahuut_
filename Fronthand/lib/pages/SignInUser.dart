@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'UserBereich/home.dart'; // Navigation zu Userbereich (eine Ebene höher)
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'UserBereich/home.dart'; // Zielseite bei erfolgreichem Login
 
 class SignInAsUserPage extends StatefulWidget {
   const SignInAsUserPage({super.key});
@@ -14,26 +15,40 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void _signIn() {
+  final supabase = Supabase.instance.client;
+
+  Future<void> _signIn() async {
     final username = _usernameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     if (_formKey.currentState!.validate()) {
-      if (username == 'testuser1' &&
-          email == 'testuser1@gmail.com' &&
-          password == '123456') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erfolgreich angemeldet')),
-        );
+      try {
+        final response = await supabase
+            .from('User') // 🔁 <-- Tabellenname prüfen
+            .select()
+            .eq('name', username)
+            .eq('email', email)
+            .eq('password', password) // ⚠️ Nur zu Lernzwecken unverschlüsselt
+            .maybeSingle();
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomePage()),
-        );
-      } else {
+        if (response != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Erfolgreich angemeldet')),
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomePage()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ungültige Anmeldedaten')),
+          );
+        }
+      } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ungültige Anmeldedaten')),
+          SnackBar(content: Text('Fehler: $error')),
         );
       }
     }
@@ -55,7 +70,7 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
         title: const Text('User Login'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context), // Zurück zur vorherigen Seite
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Center(
