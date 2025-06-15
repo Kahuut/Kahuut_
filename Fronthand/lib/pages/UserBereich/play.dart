@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'sidebar.dart';
-import 'home.dart';
 import 'play_topic.dart';
+import 'home.dart';  // Importiere deine home.dart Datei
+
+class Topic {
+  final String id;
+  final String name;
+  final String code;
+
+  Topic({required this.id, required this.name, required this.code});
+
+  factory Topic.fromMap(Map<String, dynamic> map) {
+    return Topic(
+      id: map['id_themen'].toString(),
+      name: map['name'] ?? '',
+      code: map['code'] ?? '',
+    );
+  }
+}
 
 class PlayPage extends StatefulWidget {
   const PlayPage({super.key});
@@ -13,122 +28,122 @@ class PlayPage extends StatefulWidget {
 
 class _PlayPageState extends State<PlayPage> {
   final supabase = Supabase.instance.client;
-  List<Map<String, dynamic>> publicTopics = [];
-  Map<String, dynamic>? selectedTopic;
-  bool _loading = true;
+
+  List<Topic> topics = [];
+  Topic? selectedTopic;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadPublicTopics();
+    _loadTopics();
   }
 
-  Future<void> _loadPublicTopics() async {
-    final response = await supabase
-        .from('Themen')
-        .select('id_themen, name, code')
-        .eq('public', true);
-        //.execute(); //:contentReference[oaicite:4]{index=4}
-
-    final data = response.data as List<dynamic>?;
-
+  Future<void> _loadTopics() async {
     setState(() {
-    publicTopics = data
-        ?.map((e) => {
-    'id': e['id_themen'],
-    'name': e['name'],
-    'code': e['code'],
-    })
-        .toList() ??
-    [];
-    if (publicTopics.isNotEmpty) selectedTopic = publicTopics[0];
-    _loading = false;
+      isLoading = true;
     });
+
+    try {
+      final response = await supabase
+          .from('Themen')
+          .select('id_themen, name, code')
+          .eq('public', true)
+          .execute();
+
+
+
+      final data = response.data as List<dynamic>;
+      topics = data.map((e) => Topic.fromMap(e)).toList();
+
+      if (topics.isNotEmpty) {
+        selectedTopic = topics[0];
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fehler beim Laden der Themen: $e')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _startGame() {
+    if (selectedTopic == null) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PlayTopicPage(
+          topicId: selectedTopic!.id,
+          topicName: selectedTopic!.name,
+          topicCode: selectedTopic!.code,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        children: [
-          const Sidebar(activePage: 'Spielen'),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(40),
-              color: const Color(0xFFEFF8FF),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      icon: const Icon(Icons.account_circle, size: 40),
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const HomePage()),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Spiel starten',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 30),
-                  _loading
-                      ? const Center(child: CircularProgressIndicator())
-                      : DropdownButtonFormField<Map<String, dynamic>>(
-                    value: selectedTopic,
-                    decoration: const InputDecoration(
-                      labelText: 'Thema auswählen',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: publicTopics
-                        .map((topic) => DropdownMenuItem(
-                        value: topic, child: Text(topic['name'])))
-                        .toList(),
-                    onChanged: (v) => setState(() => selectedTopic = v),
-                  ),
-                  const SizedBox(height: 30),
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: selectedTopic == null
-                            ? null
-                            : () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => PlayTopicPage(
-                                topicId: selectedTopic!['id'],
-                                topicName: selectedTopic!['name'],
-                                topicCode: selectedTopic!['code'],
-                              ),
-                            ),
-                          );
-                        },
-                        child: const Text('Jetzt spielen'),
-                      ),
-                      const SizedBox(width: 20),
-                      OutlinedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    'Mehrspieler-Modus noch nicht implementiert')),
-                          );
-                        },
-                        child: const Text('Mehrspieler'),
-                      ),
-                    ],
-                  ),
-                ],
+      appBar: AppBar(
+        title: const Text('Spiel starten'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            // Zurück zur home.dart navigieren
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const HomePage()),
+            );
+          },
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(40),
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            const Text(
+              'Thema auswählen:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 20),
+            DropdownButtonFormField<Topic>(
+              value: selectedTopic,
+              decoration: const InputDecoration(
+                labelText: 'Thema',
+                border: OutlineInputBorder(),
+              ),
+              items: topics.map((topic) {
+                return DropdownMenuItem<Topic>(
+                  value: topic,
+                  child: Text(topic.name),
+                );
+              }).toList(),
+              onChanged: (topic) {
+                setState(() {
+                  selectedTopic = topic;
+                });
+              },
+            ),
+            const SizedBox(height: 40),
+            Center(
+              child: ElevatedButton(
+                onPressed: _startGame,
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  child: Text('Jetzt spielen', style: TextStyle(fontSize: 18)),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
