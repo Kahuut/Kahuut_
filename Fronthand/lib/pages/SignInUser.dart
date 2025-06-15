@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'UserBereich/home.dart'; // Zielseite bei erfolgreichem Login
+import 'package:http/http.dart' as http;
 
 class SignInAsUserPage extends StatefulWidget {
   const SignInAsUserPage({super.key});
@@ -18,6 +19,7 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
   final supabase = Supabase.instance.client;
 
   Future<void> _signIn() async {
+    const String apiUrl = "http://127.0.0.1:8080/Login";
     final username = _usernameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;

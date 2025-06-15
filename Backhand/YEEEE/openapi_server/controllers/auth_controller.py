@@ -1,87 +1,162 @@
-import connexion
-import bcrypt
-from typing import Dict, Tuple, Union
+import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter2/pages/UserBereich/UserStartseite.dart'; // Pfad ggf. anpassen
 
-from openapi_server.models.login import Login
-from openapi_server.models.register_admin import RegisterAdmin
-from openapi_server.models.register_user import RegisterUser
-from supabase import create_client, Client
+class SignUpAsUserPage extends StatefulWidget {
+  const SignUpAsUserPage({super.key});
 
-# Supabase Zugangsdaten
-SUPABASE_URL = "https://bhgvyhekvowmwirfklih.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJoZ3Z5aGVrdm93bXdpcmZrbGloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkxOTY5NzUsImV4cCI6MjA2NDc3Mjk3NX0.Y5y6FJOSxy2NMRvfRpvTVVloWdxPL0P51cgGVdmz0nU"
+  @override
+  State<SignUpAsUserPage> createState() => _SignUpAsUserPageState();
+}
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
-# 🔐 Passwort-Hashing
-def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+  static const String apiUrl = "http://10.0.2.2:8080/UserRegister"; // Bei Android Emulator
 
-def verify_password(password: str, hashed: str) -> bool:
-    return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
+  Future<void> _register() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final response = await http.post(
+          Uri.parse(apiUrl),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode({
+            "name": _nameController.text.trim(),
+            "email": _emailController.text.trim(),
+            "password": _passwordController.text,
+          }),
+        );
 
-# 🧑‍💼 Admin registrieren
-def auth_admin_register_post(body) -> Union[Dict, Tuple[Dict, int]]:
-    if connexion.request.is_json:
-        register_admin = RegisterAdmin.from_dict(connexion.request.get_json())
+        final responseData = jsonDecode(response.body);
 
-        existing = supabase.table("Admin").select("*").eq("email", register_admin.email).execute()
-        if existing.data:
-            return {"message": "Admin existiert bereits."}, 409
+        if (response.statusCode == 201) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseData['message'] ?? 'Registrierung erfolgreich')),
+          );
 
-        hashed_pw = hash_password(register_admin.password)
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const UserStartseite()),
+          );
+        } else {
+          _showErrorDialog(responseData['message'] ?? 'Fehler bei der Registrierung');
+        }
+      } catch (e) {
+        _showErrorDialog('Verbindungsfehler: $e');
+      }
+    }
+  }
 
-        supabase.table("Admin").insert({
-            "name": register_admin.name,
-            "email": register_admin.email,
-            "password": hashed_pw
-        }).execute()
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Registrierung fehlgeschlagen"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
 
-        return {"message": "Admin erfolgreich registriert."}, 201
-    return {"message": "Ungültige Eingabe."}, 400
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
-# 👤 User registrieren
-def auth_user_register_post(body) -> Union[Dict, Tuple[Dict, int]]:
-    if connexion.request.is_json:
-        register_user = RegisterUser.from_dict(connexion.request.get_json())
-
-        existing = supabase.table("User").select("*").eq("email", register_user.email).execute()
-        if existing.data:
-            return {"message": "User existiert bereits."}, 409
-
-        hashed_pw = hash_password(register_user.password)
-
-        supabase.table("User").insert({
-            "name": register_user.name,
-            "email": register_user.email,
-            "password": hashed_pw
-        }).execute()
-
-        return {"message": "User erfolgreich registriert."}, 201
-    return {"message": "Ungültige Eingabe."}, 400
-
-# 🔑 Login
-def auth_login_post(body) -> Union[Dict, Tuple[Dict, int]]:
-    if connexion.request.is_json:
-        login = Login.from_dict(connexion.request.get_json())
-
-        # Admin prüfen
-        admin = supabase.table("Admin").select("*").eq("email", login.email).execute()
-        if admin.data:
-            admin_data = admin.data[0]
-            if verify_password(login.password, admin_data["password"]):
-                return {"message": "Admin Login erfolgreich."}, 200
-            else:
-                return {"message": "Falsches Passwort."}, 401
-
-        # User prüfen
-        user = supabase.table("User").select("*").eq("email", login.email).execute()
-        if user.data:
-            user_data = user.data[0]
-            if verify_password(login.password, user_data["password"]):
-                return {"message": "User Login erfolgreich."}, 200
-            else:
-                return {"message": "Falsches Passwort."}, 401
-
-        return {"message": "Benutzer nicht gefunden."}, 404
-    return {"message": "Ungültige Eingabe."}, 400
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFEFF8FF),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              const Text(
+                'Sign Up as User',
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 30),
+              Container(
+                padding: const EdgeInsets.all(20),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(labelText: 'Name'),
+                        validator: (value) =>
+                            value!.isEmpty ? 'Bitte Namen eingeben' : null,
+                      ),
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          labelText: 'E-Mail',
+                          hintText: 'z. B. name@example.com',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Bitte E-Mail eingeben';
+                          }
+                          final emailRegExp = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                          if (!emailRegExp.hasMatch(value)) {
+                            return 'Bitte gültige E-Mail eingeben';
+                          }
+                          return null;
+                        },
+                      ),
+                      TextFormField(
+                        controller: _passwordController,
+                        decoration: const InputDecoration(labelText: 'Passwort'),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Bitte Passwort eingeben';
+                          }
+                          if (value.length < 6) {
+                            return 'Mindestens 6 Zeichen';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _register,
+                        child: const Text('Registrieren'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
