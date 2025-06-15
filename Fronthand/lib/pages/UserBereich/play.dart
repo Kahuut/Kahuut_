@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'sidebar.dart';
 import 'home.dart';
+import 'play_topic.dart';
 
 class PlayPage extends StatefulWidget {
   const PlayPage({super.key});
@@ -10,15 +12,39 @@ class PlayPage extends StatefulWidget {
 }
 
 class _PlayPageState extends State<PlayPage> {
-  String selectedTopic = 'Mathematik';
+  final supabase = Supabase.instance.client;
+  List<Map<String, dynamic>> publicTopics = [];
+  Map<String, dynamic>? selectedTopic;
+  bool _loading = true;
 
-  final List<String> topics = [
-    'Mathematik',
-    'Geschichte',
-    'Informatik',
-    'Sport',
-    'Allgemeinwissen',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadPublicTopics();
+  }
+
+  Future<void> _loadPublicTopics() async {
+    final response = await supabase
+        .from('Themen')
+        .select('id_themen, name, code')
+        .eq('public', true);
+        //.execute(); //:contentReference[oaicite:4]{index=4}
+
+    final data = response.data as List<dynamic>?;
+
+    setState(() {
+    publicTopics = data
+        ?.map((e) => {
+    'id': e['id_themen'],
+    'name': e['name'],
+    'code': e['code'],
+    })
+        .toList() ??
+    [];
+    if (publicTopics.isNotEmpty) selectedTopic = publicTopics[0];
+    _loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +52,6 @@ class _PlayPageState extends State<PlayPage> {
       body: Row(
         children: [
           const Sidebar(activePage: 'Spielen'),
-
-          // Main Content
           Expanded(
             child: Container(
               padding: const EdgeInsets.all(40),
@@ -35,11 +59,10 @@ class _PlayPageState extends State<PlayPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Obere Leiste mit Avatar
                   Align(
                     alignment: Alignment.topRight,
                     child: IconButton(
-                      icon: const Icon(Icons.account_circle, size: 40, color: Colors.black54),
+                      icon: const Icon(Icons.account_circle, size: 40),
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
@@ -48,43 +71,42 @@ class _PlayPageState extends State<PlayPage> {
                       },
                     ),
                   ),
-
                   const SizedBox(height: 10),
                   const Text(
                     'Spiel starten',
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 30),
-
-                  // Dropdown
-                  DropdownButtonFormField<String>(
+                  _loading
+                      ? const Center(child: CircularProgressIndicator())
+                      : DropdownButtonFormField<Map<String, dynamic>>(
                     value: selectedTopic,
                     decoration: const InputDecoration(
                       labelText: 'Thema auswählen',
                       border: OutlineInputBorder(),
                     ),
-                    items: topics.map((String topic) {
-                      return DropdownMenuItem<String>(
-                        value: topic,
-                        child: Text(topic),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedTopic = value!;
-                      });
-                    },
+                    items: publicTopics
+                        .map((topic) => DropdownMenuItem(
+                        value: topic, child: Text(topic['name'])))
+                        .toList(),
+                    onChanged: (v) => setState(() => selectedTopic = v),
                   ),
-
                   const SizedBox(height: 30),
-
-                  // Buttons
                   Row(
                     children: [
                       ElevatedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Starte Thema: $selectedTopic')),
+                        onPressed: selectedTopic == null
+                            ? null
+                            : () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PlayTopicPage(
+                                topicId: selectedTopic!['id'],
+                                topicName: selectedTopic!['name'],
+                                topicCode: selectedTopic!['code'],
+                              ),
+                            ),
                           );
                         },
                         child: const Text('Jetzt spielen'),
@@ -94,8 +116,8 @@ class _PlayPageState extends State<PlayPage> {
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Mehrspieler-Modus noch nicht implementiert'),
-                            ),
+                                content: Text(
+                                    'Mehrspieler-Modus noch nicht implementiert')),
                           );
                         },
                         child: const Text('Mehrspieler'),
