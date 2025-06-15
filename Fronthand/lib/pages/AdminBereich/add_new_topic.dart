@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'AdminStartseite.dart';
 import 'topics.dart';
+import 'dart:math';
 
-class AddNewTopicPage extends StatefulWidget {
-  const AddNewTopicPage({super.key});
+class AddNewTopic extends StatefulWidget {
+  const AddNewTopic({super.key});
 
   @override
-  State<AddNewTopicPage> createState() => _AddNewTopicPageState();
+  State<AddNewTopic> createState() => _AddNewTopicState();
 }
 
-class _AddNewTopicPageState extends State<AddNewTopicPage> {
+class _AddNewTopicState extends State<AddNewTopic> {
   final TextEditingController _topicNameController = TextEditingController();
   final TextEditingController _questionController = TextEditingController();
-  List<TextEditingController> _optionControllers = [];
-  List<bool> _isOptionCorrect = [];
-
-  bool isPublic = false;
+  final List<TextEditingController> _optionControllers = [];
+  final List<bool> _isOptionCorrect = [];
+  bool _isPublic = false;
   int selectedOptionCount = 3;
+  final List<QuestionBlock> _questionsList = [];
 
   @override
   void initState() {
@@ -25,258 +27,266 @@ class _AddNewTopicPageState extends State<AddNewTopicPage> {
   }
 
   void _initializeOptions(int count) {
-    _optionControllers = List.generate(count, (_) => TextEditingController());
-    _isOptionCorrect = List.generate(count, (_) => false);
+    _optionControllers.clear();
+    _isOptionCorrect.clear();
+    for (int i = 0; i < count; i++) {
+      _optionControllers.add(TextEditingController());
+      _isOptionCorrect.add(false);
+    }
+  }
+
+  String _generateUniqueCode() {
+    final random = Random();
+    List<int> digits = [];
+    while (digits.length < 6) {
+      int digit = random.nextInt(10);
+      if (!digits.contains(digit)) {
+        digits.add(digit);
+      }
+    }
+    return digits.join();
+  }
+
+  Future<void> _saveTopicToDatabase() async {
+    final topicName = _topicNameController.text.trim();
+    final code = _generateUniqueCode();
+
+    if (topicName.isEmpty || _questionsList.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bitte gib einen Namen und mindestens eine Frage ein.')),
+      );
+      return;
+    }
+
+    try {
+      final insertedTopic = await Supabase.instance.client
+          .from('Themen')
+          .insert({'name': topicName, 'code': code, 'public': _isPublic})
+          .select()
+          .single();
+
+      final topicId = insertedTopic['id_themen'];
+
+      for (final q in _questionsList) {
+        final insertedQuestion = await Supabase.instance.client
+            .from('Fragen')
+            .insert({
+          'frage': q.question,
+          'fk_id_themen': topicId,
+        })
+            .select()
+            .single();
+
+        final questionId = insertedQuestion['id_frage'];
+
+        for (int i = 0; i < q.options.length; i++) {
+          await Supabase.instance.client.from('Antworten').insert({
+            'antwort': q.options[i],
+            'richtig': q.isCorrect[i],
+            'fk_id_frage': questionId,
+          });
+        }
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Thema erfolgreich erstellt!')),
+      );
+
+      _topicNameController.clear();
+      _questionsList.clear();
+      _questionController.clear();
+      setState(() {
+        selectedOptionCount = 3;
+        _initializeOptions(selectedOptionCount);
+        _isPublic = false;
+      });
+
+      // Optional: Automatisch zur TopicsPage zurückkehren
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => const TopicsPage()),
+      // );
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fehler beim Speichern: $e')),
+      );
+    }
   }
 
   @override
-  void dispose() {
-    _topicNameController.dispose();
-    _questionController.dispose();
-    for (var controller in _optionControllers) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
-  Widget _buildSidebarButton(String label, IconData icon, VoidCallback onTap,
-      {bool active = false}) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        width: double.infinity,
-        color: active ? Colors.grey.shade600 : Colors.grey.shade300,
-        child: Row(
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.blue.shade50,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon),
-            const SizedBox(width: 10),
-            Text(label),
+            Text("New topic name:", style: Theme.of(context).textTheme.titleLarge),
+            TextField(controller: _topicNameController),
+            const SizedBox(height: 24),
+            _buildQuestionInput(),
+            const SizedBox(height: 24),
+
+            // Public / Private Auswahl
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() => _isPublic = false);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _isPublic ? Colors.grey : Colors.red,
+                      ),
+                      child: const Text('private'),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() => _isPublic = true);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _isPublic ? Colors.green : Colors.grey,
+                      ),
+                      child: const Text('public'),
+                    ),
+                  ],
+                ),
+
+                // Add Topic Button
+                ElevatedButton(
+                  onPressed: _saveTopicToDatabase,
+                  child: const Text("Add new topic"),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // Back Button
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const TopicsPage()),
+                  );
+                },
+                icon: const Icon(Icons.arrow_back),
+                label: const Text("Back to Topics"),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade600),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Row(
+  Widget _buildQuestionInput() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Sidebar
+          const Text("Question:"),
+          TextField(controller: _questionController),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Options:"),
+              DropdownButton<int>(
+                value: selectedOptionCount,
+                items: List.generate(6, (index) => index + 2)
+                    .map((val) => DropdownMenuItem<int>(
+                  value: val,
+                  child: Text(val.toString()),
+                ))
+                    .toList(),
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() {
+                      selectedOptionCount = val;
+                      _initializeOptions(selectedOptionCount);
+                    });
+                  }
+                },
+              )
+            ],
+          ),
           Container(
-            width: 200,
-            color: Colors.grey.shade300,
+            color: Colors.lightBlueAccent,
+            padding: const EdgeInsets.all(8),
             child: Column(
-              children: [
-                const SizedBox(height: 60),
-                const Icon(Icons.account_circle, size: 80, color: Colors.black54),
-                const SizedBox(height: 20),
-                _buildSidebarButton('Settings', Icons.settings, () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AdminStartseite()),
-                  );
-                }),
-                _buildSidebarButton('Topics', Icons.topic, () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const TopicsPage()),
-                  );
-                }, active: true),
-                _buildSidebarButton('Start the game', Icons.play_arrow, () {}),
-
-
-              ],
+              children: List.generate(selectedOptionCount, (index) {
+                return Row(
+                  children: [
+                    Expanded(child: TextField(controller: _optionControllers[index])),
+                    Checkbox(
+                      value: _isOptionCorrect[index],
+                      onChanged: (val) {
+                        setState(() => _isOptionCorrect[index] = val ?? false);
+                      },
+                    )
+                  ],
+                );
+              }),
             ),
           ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              onPressed: () {
+                if (_questionController.text.isEmpty ||
+                    _optionControllers.any((c) => c.text.isEmpty)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Bitte fülle alle Felder vollständig aus.')),
+                  );
+                  return;
+                }
 
-          // Main Content
-          Expanded(
-            child: Container(
-              color: const Color(0xFFEFF8FF),
-              padding: const EdgeInsets.all(40),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Topic name
-                  Row(
-                    children: [
-                      const Text('New topic name:',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: TextField(controller: _topicNameController),
-                      ),
-                    ],
+                _questionsList.add(
+                  QuestionBlock(
+                    question: _questionController.text.trim(),
+                    options: _optionControllers.map((c) => c.text.trim()).toList(),
+                    isCorrect: List.from(_isOptionCorrect),
                   ),
-                  const SizedBox(height: 30),
+                );
 
-                  // Question Box
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Question input and dropdown
-                        Row(
-                          children: [
-                            const Expanded(child: Text('Question:')),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              flex: 4,
-                              child: TextField(controller: _questionController),
-                            ),
-                            const SizedBox(width: 10),
-                            const Text('Options:'),
-                            const SizedBox(width: 10),
-                            DropdownButton<int>(
-                              value: selectedOptionCount,
-                              items: [2, 3, 4].map((count) {
-                                return DropdownMenuItem<int>(
-                                  value: count,
-                                  child: Text(count.toString()),
-                                );
-                              }).toList(),
-                              onChanged: (newCount) {
-                                setState(() {
-                                  selectedOptionCount = newCount!;
-                                  _initializeOptions(selectedOptionCount);
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Option Inputs
-                        Container(
-                          color: Colors.lightBlue.shade200,
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Options:'),
-                              const SizedBox(height: 10),
-                              for (int i = 0; i < selectedOptionCount; i++)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: TextField(
-                                          controller: _optionControllers[i],
-                                          decoration: InputDecoration(
-                                            hintText: 'Option ${String.fromCharCode(65 + i)}',
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            _isOptionCorrect[i] = !_isOptionCorrect[i];
-                                          });
-                                        },
-                                        child: Container(
-                                          width: 30,
-                                          height: 30,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            border: Border.all(color: Colors.black),
-                                          ),
-                                          child: Center(
-                                            child: _isOptionCorrect[i]
-                                                ? const Icon(Icons.check,
-                                                size: 20, color: Colors.green)
-                                                : const SizedBox.shrink(),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                              const SizedBox(height: 10),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    // Placeholder für Speichern
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // Public / Private
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.redAccent,
-                              ),
-                              onPressed: () {
-                                setState(() => isPublic = false);
-                              },
-                              child: const Text('private'),
-                            ),
-                            const SizedBox(width: 10),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.lightGreenAccent,
-                              ),
-                              onPressed: () {
-                                setState(() => isPublic = true);
-                              },
-                              child: const Text('public'),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Add topic button
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Hier später das Topic speichern
-                        String name = _topicNameController.text;
-                        String question = _questionController.text;
-                        List<Map<String, dynamic>> options = List.generate(
-                          selectedOptionCount,
-                              (i) => {
-                            'text': _optionControllers[i].text,
-                            'isCorrect': _isOptionCorrect[i]
-                          },
-                        );
-
-                        print('Topic: $name');
-                        print('Question: $question');
-                        print('Options: $options');
-                        print('Public: $isPublic');
-
-                        // Du kannst hier die Logik zum Speichern in DB einbauen
-                      },
-                      child: const Text('Add new topic'),
-                    ),
-                  )
-                ],
-              ),
+                setState(() {
+                  _questionController.clear();
+                  selectedOptionCount = 3;
+                  _initializeOptions(selectedOptionCount);
+                });
+              },
+              child: const Text("OK"),
             ),
           )
         ],
       ),
     );
   }
+}
+
+class QuestionBlock {
+  String question;
+  List<String> options;
+  List<bool> isCorrect;
+
+  QuestionBlock({
+    required this.question,
+    required this.options,
+    required this.isCorrect,
+  });
 }
