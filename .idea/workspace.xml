@@ -4,17 +4,12 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce3bc764-6c0f-4798-9ae7-986736d10b01" name="Changes" comment="update">
+    <list default="true" id="ce3bc764-6c0f-4798-9ae7-986736d10b01" name="Changes" comment="Update">
+      <change afterPath="$PROJECT_DIR$/Fronthand/lib/pages/AdminBereich/choose.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fronthand/lib/pages/SignInAdmin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Fronthand/lib/pages/SignInAdmin.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fronthand/lib/pages/SignInUser.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Fronthand/lib/pages/SignInUser.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fronthand/linux/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/Fronthand/linux/flutter/generated_plugin_registrant.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fronthand/linux/flutter/generated_plugin_registrant.h" beforeDir="false" afterPath="$PROJECT_DIR$/Fronthand/linux/flutter/generated_plugin_registrant.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fronthand/linux/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/Fronthand/linux/flutter/generated_plugins.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fronthand/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/Fronthand/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fronthand/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/Fronthand/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fronthand/windows/flutter/generated_plugin_registrant.h" beforeDir="false" afterPath="$PROJECT_DIR$/Fronthand/windows/flutter/generated_plugin_registrant.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fronthand/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/Fronthand/windows/flutter/generated_plugins.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fronthand/lib/pages/AdminBereich/add_new_topic.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Fronthand/lib/pages/AdminBereich/add_new_topic.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fronthand/lib/pages/AdminBereich/start_the_game.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Fronthand/lib/pages/AdminBereich/start_the_game.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fronthand/lib/pages/AdminBereich/topics.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Fronthand/lib/pages/AdminBereich/topics.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +57,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Flutter.main.dart.executor": "Run",
+    "ResourceManagerPrefKey.ResourceType": "MIPMAP",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.cidr.known.project.marker": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -163,7 +159,31 @@
       <option name="project" value="LOCAL" />
       <updated>1749805798287</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Update Anmin Login mit Datenbank">
+      <option name="closed" value="true" />
+      <created>1749809477570</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1749809477570</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Update User Login mit Datenbank">
+      <option name="closed" value="true" />
+      <created>1749809491280</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1749809491280</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Update">
+      <option name="closed" value="true" />
+      <created>1749809551694</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1749809551694</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -184,6 +204,9 @@
     <MESSAGE value="Regristrierungspage fertig, UserStartseite hinzugefügt" />
     <MESSAGE value="UserStartseite Spielen und Porfil hinzugefügt, play page und settings page hinzugefügt, home stratseite und sidebar veralgemeinert" />
     <MESSAGE value="update" />
-    <option name="LAST_COMMIT_MESSAGE" value="update" />
+    <MESSAGE value="Update Anmin Login mit Datenbank" />
+    <MESSAGE value="Update User Login mit Datenbank" />
+    <MESSAGE value="Update" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update" />
   </component>
 </project>

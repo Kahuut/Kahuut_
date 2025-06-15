@@ -1,9 +1,6 @@
-import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'AdminStartseite.dart';
-import 'topics.dart';
-import '../../main.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'choose.dart';
 
 class StartTheGamePage extends StatefulWidget {
   const StartTheGamePage({super.key});
@@ -13,53 +10,56 @@ class StartTheGamePage extends StatefulWidget {
 }
 
 class _StartTheGamePageState extends State<StartTheGamePage> {
-  late String gameCode;
-  String? selectedTopic;
-  List<String> players = ['Testuser'];
+  Map<String, dynamic>? selectedTopic;
+  String gameCode = '';
+  List<Map<String, dynamic>> players = [];
 
   @override
   void initState() {
     super.initState();
-    gameCode = _generateRandomCode();
+    _loadPlayers();
   }
 
-  String _generateRandomCode() {
-    final random = Random();
-    return (10000 + random.nextInt(90000)).toString();
+  Future<void> _loadPlayers() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('user')
+          .select('user_id, name')
+          .execute();
+
+      final data = response.data as List<dynamic>? ?? [];
+
+      setState(() {
+        players = data.map((p) => {
+          'user_id': p['user_id'],
+          'name': p['name'],
+        }).toList();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fehler beim Laden der Spieler: $e')),
+      );
+    }
   }
 
   void _chooseTopic() async {
-    String newTopic = await Navigator.push(
+    final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const TopicsPage()),
+      MaterialPageRoute(builder: (context) => const ChoosePage()),
     );
-    setState(() {
-      selectedTopic = newTopic;
-    });
+
+    if (result != null && result is Map<String, dynamic>) {
+      setState(() {
+        selectedTopic = result;
+        gameCode = result['code'] ?? '';
+      });
+    }
   }
 
-  void _kickPlayer(String player) {
+  void _kickPlayer(String userId) {
     setState(() {
-      players.remove(player);
+      players.removeWhere((p) => p['user_id'] == userId);
     });
-  }
-
-  Widget _buildSidebarButton(String label, IconData icon, VoidCallback onTap, {bool active = false}) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        width: double.infinity,
-        color: active ? Colors.grey.shade600 : Colors.grey.shade300,
-        child: Row(
-          children: [
-            Icon(icon),
-            const SizedBox(width: 10),
-            Text(label),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -67,7 +67,7 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
     return Scaffold(
       body: Row(
         children: [
-          // Sidebar
+          // Sidebar (optional, hier vereinfacht)
           Container(
             width: 200,
             color: Colors.grey.shade300,
@@ -76,33 +76,73 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
                 const SizedBox(height: 60),
                 const Icon(Icons.account_circle, size: 80, color: Colors.black54),
                 const SizedBox(height: 20),
-                _buildSidebarButton('Topics', Icons.topic, () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const TopicsPage()),
-                  );
-                }),
-                _buildSidebarButton('Start the game', Icons.play_arrow, () {}, active: true),
-
-                _buildSidebarButton('Settings', Icons.settings, () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AdminStartseite()),
-                  );
-
-                }),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushReplacementNamed(context, '/topics');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                    width: double.infinity,
+                    color: Colors.grey.shade300,
+                    child: Row(
+                      children: const [
+                        Icon(Icons.topic),
+                        SizedBox(width: 10),
+                        Text('Topics'),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {},
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                    width: double.infinity,
+                    color: Colors.grey.shade600,
+                    child: Row(
+                      children: const [
+                        Icon(Icons.play_arrow),
+                        SizedBox(width: 10),
+                        Text('Start the game'),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushReplacementNamed(context, '/adminstartseite');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                    width: double.infinity,
+                    color: Colors.grey.shade300,
+                    child: Row(
+                      children: const [
+                        Icon(Icons.settings),
+                        SizedBox(width: 10),
+                        Text('Settings'),
+                      ],
+                    ),
+                  ),
+                ),
                 const Spacer(),
-
-                //* Logout Button
-
-                _buildSidebarButton('Log out', Icons.logout, () {
-                  Navigator.pushReplacement(
-                    context,
-                     MaterialPageRoute(builder: (context) => const MyApp()),
-                   );
-                }),
-
-
+                InkWell(
+                  onTap: () {
+                    Navigator.pushReplacementNamed(context, '/');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                    width: double.infinity,
+                    color: Colors.grey.shade300,
+                    child: Row(
+                      children: const [
+                        Icon(Icons.logout),
+                        SizedBox(width: 10),
+                        Text('Log out'),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -115,7 +155,7 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Topic Selection Row
+                  // Thema wählen + Anzeige
                   Row(
                     children: [
                       ElevatedButton(
@@ -129,17 +169,20 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
                           border: Border.all(color: Colors.black),
                           color: Colors.white,
                         ),
-                        child: Text('Selected topic: ${selectedTopic ?? ''}'),
+                        child: Text('Selected topic: ${selectedTopic?['name'] ?? ''}'),
                       ),
                     ],
                   ),
 
                   const SizedBox(height: 30),
 
-                  // Game Code
+                  // Code anzeigen
                   Row(
                     children: [
-                      const Text('Code:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Code:',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(width: 10),
                       SizedBox(
                         width: 100,
@@ -153,7 +196,7 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
 
                   const SizedBox(height: 20),
 
-                  // Player list
+                  // Spieler Liste
                   Container(
                     width: 400,
                     padding: const EdgeInsets.all(16),
@@ -166,6 +209,8 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
                       children: [
                         const Text('Players:'),
                         const SizedBox(height: 10),
+                        if (players.isEmpty)
+                          const Text('Keine Spieler vorhanden.'),
                         for (var player in players)
                           Container(
                             color: Colors.grey.shade400,
@@ -175,10 +220,10 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text(player),
+                                  child: Text(player['name'] ?? 'Unnamed'),
                                 ),
                                 ElevatedButton(
-                                  onPressed: () => _kickPlayer(player),
+                                  onPressed: () => _kickPlayer(player['user_id']),
                                   style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
                                   child: const Text('kick'),
                                 ),
@@ -191,12 +236,12 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
 
                   const Spacer(),
 
-                  // Start button
+                  // Start Button
                   Align(
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Spiel starten (Logik folgt später)
+                        // TODO: Spiel starten
                       },
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade600),
                       child: const Text('Start'),
