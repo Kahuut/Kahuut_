@@ -1,11 +1,11 @@
 openapi: 3.0.0
 info:
-  description: "Eine API zur Verwaltung von Nutzer*innen, Themen und Spielen, inkl.\
-    \ Multiplayer-Features."
   title: Kahuut API
   version: 1.1.0
+  description: Eine API zur Verwaltung von Nutzer*innen, Themen und Spielen, inkl. Multiplayer-Features.
 servers:
-- url: /
+  - url: /
+
 paths:
   /auth/admin/register:
     post:
@@ -22,9 +22,9 @@ paths:
         "400":
           description: Ungültige Eingabe
       summary: Admin registrieren
-      tags:
-      - Auth
+      tags: [Auth]
       x-openapi-router-controller: openapi_server.controllers.auth_controller
+
   /auth/login:
     post:
       operationId: auth_login_post
@@ -40,9 +40,9 @@ paths:
         "401":
           description: Ungültige Anmeldedaten
       summary: Login für Admin/User
-      tags:
-      - Auth
+      tags: [Auth]
       x-openapi-router-controller: openapi_server.controllers.auth_controller
+
   /auth/user/register:
     post:
       operationId: auth_user_register_post
@@ -58,119 +58,31 @@ paths:
         "400":
           description: Ungültige Eingabe
       summary: User registrieren
-      tags:
-      - Auth
+      tags: [Auth]
       x-openapi-router-controller: openapi_server.controllers.auth_controller
-  /mehrspieler/join:
-    post:
-      operationId: mehrspieler_join_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/_mehrspieler_join_post_request'
-        required: true
-      responses:
-        "200":
-          description: Erfolgreich beigetreten
-        "404":
-          description: Ungültiger Code
-        "401":
-          description: Nicht autorisiert
-      security:
-      - BearerAuth: []
-      summary: Mehrspieler-Quiz beitreten (per Code)
-      tags:
-      - Mehrspieler
-      x-openapi-router-controller: openapi_server.controllers.mehrspieler_controller
-  /mehrspieler/start:
-    post:
-      operationId: mehrspieler_start_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/_mehrspieler_start_post_request'
-        required: true
-      responses:
-        "201":
-          description: Mehrspieler-Session gestartet (Code zurückgegeben)
-        "401":
-          description: Nicht autorisiert
-      security:
-      - BearerAuth: []
-      summary: Mehrspieler-Quiz starten (nur Admin)
-      tags:
-      - Mehrspieler
-      x-openapi-router-controller: openapi_server.controllers.mehrspieler_controller
-  /spielen:
-    get:
-      operationId: spielen_get
-      parameters:
-      - explode: true
-        in: query
-        name: userId
-        required: true
-        schema:
-          type: string
-        style: form
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/Spiel'
-                type: array
-          description: Spielverlauf zurückgegeben
-      summary: Spielverlauf eines Users
-      tags:
-      - Spielen
-      x-openapi-router-controller: openapi_server.controllers.spielen_controller
-    post:
-      operationId: spielen_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Spiel'
-        required: true
-      responses:
-        "201":
-          description: Spiel wurde gespeichert
-        "401":
-          description: Nicht autorisiert
-      security:
-      - BearerAuth: []
-      summary: Spiel starten (User - nur veröffentlichte Themen)
-      tags:
-      - Spielen
-      x-openapi-router-controller: openapi_server.controllers.spielen_controller
+
   /themen:
     get:
       operationId: themen_get
       parameters:
-      - description: Nur veröffentlichte Themen anzeigen (true/false)
-        explode: true
-        in: query
-        name: published
-        required: false
-        schema:
-          type: boolean
-        style: form
+        - in: query
+          name: published
+          required: false
+          schema:
+            type: boolean
       responses:
         "200":
+          description: Themenliste
           content:
             application/json:
               schema:
+                type: array
                 items:
                   $ref: '#/components/schemas/Thema'
-                type: array
-          description: Themenliste
       summary: Themen abrufen (optional gefiltert nach veröffentlicht)
-      tags:
-      - Themen
+      tags: [Themen]
       x-openapi-router-controller: openapi_server.controllers.themen_controller
+
     post:
       operationId: themen_post
       requestBody:
@@ -185,154 +97,118 @@ paths:
         "401":
           description: Nicht autorisiert
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Neues Thema anlegen (Admin)
-      tags:
-      - Themen
+      tags: [Themen]
       x-openapi-router-controller: openapi_server.controllers.themen_controller
+
+  /fragen:
+    post:
+      operationId: fragen_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Frage'
+        required: true
+      responses:
+        "201":
+          description: Frage wurde erstellt
+      summary: Neue Frage anlegen
+      tags: [Fragen]
+      x-openapi-router-controller: openapi_server.controllers.fragen_controller
+
+  /antworten:
+    post:
+      operationId: antworten_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Antwort'
+        required: true
+      responses:
+        "201":
+          description: Antwort wurde erstellt
+      summary: Neue Antwort anlegen
+      tags: [Antworten]
+      x-openapi-router-controller: openapi_server.controllers.antworten_controller
+
 components:
   schemas:
     RegisterAdmin:
-      example:
-        password: password
-        name: name
-        email: email
+      type: object
+      required: [email, name, password]
       properties:
         name:
-          title: name
           type: string
         email:
+          type: string
           format: email
-          title: email
-          type: string
         password:
-          format: password
-          title: password
           type: string
-      required:
-      - email
-      - name
-      - password
-      title: RegisterAdmin
-      type: object
+          format: password
+
     RegisterUser:
-      example:
-        password: password
-        name: name
-        email: email
+      type: object
+      required: [email, name, password]
       properties:
         name:
-          title: name
           type: string
         email:
+          type: string
           format: email
-          title: email
-          type: string
         password:
-          format: password
-          title: password
           type: string
-      required:
-      - email
-      - name
-      - password
-      title: RegisterUser
-      type: object
+          format: password
+
     Login:
-      example:
-        password: password
-        email: email
+      type: object
+      required: [email, password]
       properties:
         email:
+          type: string
           format: email
-          title: email
-          type: string
         password:
+          type: string
           format: password
-          title: password
-          type: string
-      required:
-      - email
-      - password
-      title: Login
-      type: object
+
     Thema:
-      example:
-        Antwort: Antwort
-        Published: true
-        Fragen: Fragen
-        Code: Code
-      properties:
-        Fragen:
-          title: Fragen
-          type: string
-        Antwort:
-          title: Antwort
-          type: string
-        Code:
-          title: Code
-          type: string
-        Published:
-          description: "Gibt an, ob das Thema veröffentlicht ist"
-          title: Published
-          type: boolean
-      required:
-      - Antwort
-      - Fragen
-      - Published
-      title: Thema
       type: object
-    Spiel:
-      example:
-        fk_ID_User: fk_ID_User
-        Punkte: 0
-        fk_ID_Themen: fk_ID_Themen
-        Zeit: 2000-01-23T04:56:07.000+00:00
+      required: [name, published]
       properties:
-        fk_ID_User:
-          title: fk_ID_User
+        name:
+          type: string
+        code:
+          type: string
+        published:
+          type: boolean
+
+    Frage:
+      type: object
+      required: [frage, fk_ID_Themen]
+      properties:
+        frage:
           type: string
         fk_ID_Themen:
-          title: fk_ID_Themen
           type: string
-        Zeit:
-          format: date-time
-          title: Zeit
-          type: string
-        Punkte:
-          title: Punkte
-          type: integer
-      required:
-      - Punkte
-      - fk_ID_Themen
-      - fk_ID_User
-      title: Spiel
+          format: uuid
+
+    Antwort:
       type: object
-    _mehrspieler_start_post_request:
+      required: [antwort, fk_ID_Frage]
       properties:
-        themaId:
-          title: themaId
+        antwort:
           type: string
-      required:
-      - themaId
-      title: _mehrspieler_start_post_request
-      type: object
-    _mehrspieler_join_post_request:
-      properties:
-        code:
-          title: code
+        richtig:
+          type: boolean
+        fk_ID_Frage:
           type: string
-        userId:
-          title: userId
-          type: string
-      required:
-      - code
-      - userId
-      title: _mehrspieler_join_post_request
-      type: object
+          format: uuid
+
   securitySchemes:
     BearerAuth:
-      bearerFormat: JWT
-      scheme: bearer
       type: http
+      scheme: bearer
+      bearerFormat: JWT
       x-bearerInfoFunc: openapi_server.controllers.security_controller.info_from_BearerAuth
