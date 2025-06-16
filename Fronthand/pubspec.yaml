@@ -14,7 +14,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   http: ^1.4.0
   supabase_flutter: ^1.7.0
-
+  flutter_appauth: ^6.0.0
+  flutter_secure_storage: ^9.0.0
+  msal_flutter: ^2.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

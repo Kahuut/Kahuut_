@@ -22,7 +22,7 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const UserStartseite()), // Immer navigieren
+        MaterialPageRoute(builder: (_) => const UserStartseite()),
       );
     }
   }
@@ -33,6 +33,13 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _openMicrosoftLogin() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MicrosoftLoginPage()),
+    );
   }
 
   @override
@@ -86,8 +93,7 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
                           if (value == null || value.isEmpty) {
                             return 'Bitte E-Mail eingeben';
                           }
-                          final emailRegExp =
-                          RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                          final emailRegExp = RegExp(r'^[^@]+@[^@]+\.[^@]+');
                           if (!emailRegExp.hasMatch(value)) {
                             return 'Bitte gültige E-Mail eingeben';
                           }
@@ -96,7 +102,8 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
                       ),
                       TextFormField(
                         controller: _passwordController,
-                        decoration: const InputDecoration(labelText: 'Passwort'),
+                        decoration:
+                        const InputDecoration(labelText: 'Passwort'),
                         obscureText: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -113,12 +120,50 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
                         onPressed: _register,
                         child: const Text('Registrieren'),
                       ),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: _openMicrosoftLogin,
+                        icon: Image.network(
+                          'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg',
+                          height: 20,
+                          width: 20,
+                          errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.login),
+                        ),
+                        label: const Text('Mit Microsoft anmelden'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.blue[800],
+                          side: BorderSide(color: Colors.blue.shade800),
+                          minimumSize: const Size.fromHeight(45),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// Neues Microsoft Login Fenster (Platzhalter)
+class MicrosoftLoginPage extends StatelessWidget {
+  const MicrosoftLoginPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Microsoft Anmeldung'),
+        backgroundColor: Colors.blue[800],
+      ),
+      body: const Center(
+        child: Text(
+          'Hier kommt später das Microsoft Login',
+          style: TextStyle(fontSize: 18),
         ),
       ),
     );
