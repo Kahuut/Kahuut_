@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter2/pages/AdminBereich/AdminStartseite.dart';
+import 'package:flutter2/pages/AdminBereich/topics.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'choose.dart';
 
@@ -23,15 +25,16 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
   Future<void> _loadPlayers() async {
     try {
       final response = await Supabase.instance.client
-          .from('user')
-          .select('user_id, name')
+          .from('User')  // Groß-U und Anführungszeichen
+          .select('id_user, name')
           .execute();
+
 
       final data = response.data as List<dynamic>? ?? [];
 
       setState(() {
         players = data.map((p) => {
-          'user_id': p['user_id'],
+          'id_user': p['id_user'],
           'name': p['name'],
         }).toList();
       });
@@ -41,6 +44,7 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
       );
     }
   }
+
 
   void _chooseTopic() async {
     final result = await Navigator.push(
@@ -56,9 +60,9 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
     }
   }
 
-  void _kickPlayer(String userId) {
+  void _kickPlayer(String idUser) {
     setState(() {
-      players.removeWhere((p) => p['user_id'] == userId);
+      players.removeWhere((p) => p['id_user'] == idUser);
     });
   }
 
@@ -67,7 +71,7 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
     return Scaffold(
       body: Row(
         children: [
-          // Sidebar (optional, hier vereinfacht)
+          // Sidebar Menü (wie AdminStartseite)
           Container(
             width: 200,
             color: Colors.grey.shade300,
@@ -76,9 +80,13 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
                 const SizedBox(height: 60),
                 const Icon(Icons.account_circle, size: 80, color: Colors.black54),
                 const SizedBox(height: 20),
+
                 InkWell(
                   onTap: () {
-                    Navigator.pushReplacementNamed(context, '/topics');
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const TopicsPage()),
+                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
@@ -93,8 +101,11 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
                     ),
                   ),
                 ),
+
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    // Bleibe hier
+                  },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                     width: double.infinity,
@@ -108,9 +119,13 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
                     ),
                   ),
                 ),
+
                 InkWell(
                   onTap: () {
-                    Navigator.pushReplacementNamed(context, '/adminstartseite');
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AdminStartseite()),
+                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
@@ -125,7 +140,9 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
                     ),
                   ),
                 ),
+
                 const Spacer(),
+
                 InkWell(
                   onTap: () {
                     Navigator.pushReplacementNamed(context, '/');
@@ -147,7 +164,7 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
             ),
           ),
 
-          // Main Content
+          // Hauptbereich
           Expanded(
             child: Container(
               color: const Color(0xFFEFF8FF),
@@ -223,7 +240,7 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
                                   child: Text(player['name'] ?? 'Unnamed'),
                                 ),
                                 ElevatedButton(
-                                  onPressed: () => _kickPlayer(player['user_id']),
+                                  onPressed: () => _kickPlayer(player['id_user']),
                                   style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
                                   child: const Text('kick'),
                                 ),
@@ -241,7 +258,10 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(
                       onPressed: () {
-                        // TODO: Spiel starten
+                        // TODO: Spiel starten Logik hier
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Spiel gestartet!')),
+                        );
                       },
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade600),
                       child: const Text('Start'),
