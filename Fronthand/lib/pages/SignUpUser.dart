@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter2/pages/UserBereich/UserStartseite.dart'; // Stelle sicher, dass dieser Pfad korrekt ist
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter2/pages/UserBereich/UserStartseite.dart';
 
 class SignUpAsUserPage extends StatefulWidget {
   const SignUpAsUserPage({super.key});
@@ -14,16 +15,49 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void _register() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registrierung erfolgreich')),
-      );
+  final supabase = Supabase.instance.client;
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const UserStartseite()),
-      );
+  Future<void> _register() async {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (_formKey.currentState!.validate()) {
+      try {
+        // Prüfen, ob Name oder E-Mail schon existieren
+        final existingUser = await supabase
+            .from('User')
+            .select()
+            .or('name.eq.$name,email.eq.$email')
+            .maybeSingle();
+
+        if (existingUser != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Benutzername oder E-Mail existiert bereits')),
+          );
+          return;
+        }
+
+        // Einfügen in die DB
+        await supabase.from('User').insert({
+          'name': name,
+          'email': email,
+          'password': password, // ⚠️ Klartext nur zu Lernzwecken
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registrierung erfolgreich')),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const UserStartseite()),
+        );
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Fehler bei der Registrierung: $error')),
+        );
+      }
     }
   }
 
@@ -102,8 +136,7 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
                       ),
                       TextFormField(
                         controller: _passwordController,
-                        decoration:
-                        const InputDecoration(labelText: 'Passwort'),
+                        decoration: const InputDecoration(labelText: 'Passwort'),
                         obscureText: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -149,7 +182,7 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
   }
 }
 
-// Neues Microsoft Login Fenster (Platzhalter)
+// Placeholder für Microsoft Login
 class MicrosoftLoginPage extends StatelessWidget {
   const MicrosoftLoginPage({super.key});
 

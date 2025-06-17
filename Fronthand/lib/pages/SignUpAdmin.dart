@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter2/pages/AdminBereich/AdminStartseite.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'AdminBereich/AdminStartseite.dart';
 
 class SignUpAsAdminPage extends StatefulWidget {
   const SignUpAsAdminPage({super.key});
@@ -14,16 +15,49 @@ class _SignUpAsAdminPageState extends State<SignUpAsAdminPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void _register() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registrierung erfolgreich')),
-      );
+  final supabase = Supabase.instance.client;
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const AdminStartseite()), // Immer navigieren
-      );
+  Future<void> _register() async {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (_formKey.currentState!.validate()) {
+      try {
+        // Admin mit gleichem Namen oder E-Mail prüfen
+        final existingAdmin = await supabase
+            .from('Admin')
+            .select()
+            .or('name.eq.$name,email.eq.$email')
+            .maybeSingle();
+
+        if (existingAdmin != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Benutzername oder E-Mail existiert bereits')),
+          );
+          return;
+        }
+
+        // In Datenbank einfügen
+        await supabase.from('Admin').insert({
+          'name': name,
+          'email': email,
+          'password': password, // Hinweis: Nur zu Lernzwecken im Klartext!
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Admin erfolgreich registriert')),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminStartseite()),
+        );
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Fehler bei der Registrierung: $error')),
+        );
+      }
     }
   }
 
@@ -39,117 +73,67 @@ class _SignUpAsAdminPageState extends State<SignUpAsAdminPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEFF8FF),
+      appBar: AppBar(
+        title: const Text('Admin Registrierung'),
+      ),
       body: Center(
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              const Text(
-                'Sign Up as Admin',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-              ),
-              const SizedBox(height: 30),
-              Container(
-                padding: const EdgeInsets.all(20),
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: const InputDecoration(labelText: 'Name'),
-                        validator: (value) =>
-                        value!.isEmpty ? 'Bitte Namen eingeben' : null,
-                      ),
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'E-Mail',
-                          hintText: 'Value',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Bitte E-Mail eingeben';
-                          }
-                          final emailRegExp =
-                          RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                          if (!emailRegExp.hasMatch(value)) {
-                            return 'Bitte gültige E-Mail eingeben';
-                          }
-                          return null;
-                        },
-                      ),
-                      TextFormField(
-                        controller: _passwordController,
-                        decoration:
-                        const InputDecoration(labelText: 'Passwort'),
-                        obscureText: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Bitte Passwort eingeben';
-                          }
-                          if (value.length < 6 &&
-                              !RegExp(r'[A-Z]').hasMatch(value) &&
-                              !RegExp(r'[!@#\$%^&*(),.?":{}|<>]')
-                                  .hasMatch(value)) {
-                            return 'Mindestens 6 Zeichen, ein Großbuchstabe und ein Sonderzeichen';
-                          }
-                          if (!RegExp(r'[A-Z]').hasMatch(value) &&
-                              !RegExp(r'[!@#\$%^&*(),.?":{}|<>]')
-                                  .hasMatch(value)) {
-                            return 'Mindestens ein Großbuchstabe und ein Sonderzeichen';
-                          }
-                          if (value.length < 6 &&
-                              !RegExp(r'[A-Z]').hasMatch(value)) {
-                            return 'Mindestens 6 Zeichen und ein Großbuchstabe';
-                          }
-                          if (value.length < 6 &&
-                              !RegExp(r'[!@#\$%^&*(),.?":{}|<>]')
-                                  .hasMatch(value)) {
-                            return 'Mindestens 6 Zeichen und ein Sonderzeichen';
-                          }
-                          if (value.length < 6) {
-                            return 'Mindestens 6 Zeichen';
-                          }
-                          if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                            return 'Mindestens ein Großbuchstabe';
-                          }
-                          if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>]')
-                              .hasMatch(value)) {
-                            return 'Mindestens ein Sonderzeichen';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _register,
-                        child: const Text('Registrieren'),
-                      ),
-                    ],
+              ],
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(labelText: 'Benutzername'),
+                    validator: (value) =>
+                    value!.isEmpty ? 'Bitte Benutzernamen eingeben' : null,
                   ),
-                ),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(labelText: 'E-Mail'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Bitte E-Mail eingeben';
+                      }
+                      final emailRegExp = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                      if (!emailRegExp.hasMatch(value)) {
+                        return 'Ungültige E-Mail-Adresse';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(labelText: 'Passwort'),
+                    obscureText: true,
+                    validator: (value) =>
+                    value!.length < 6 ? 'Mindestens 6 Zeichen' : null,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _register,
+                    child: const Text('Registrieren'),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 }
-

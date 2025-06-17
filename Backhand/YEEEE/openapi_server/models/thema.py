@@ -83,7 +83,6 @@ class Thema(Model):
         :param code: The code of this Thema.
         :type code: str
         """
-
         self._code = code
 
     @property
@@ -110,3 +109,11 @@ class Thema(Model):
             raise ValueError("Invalid value for `published`, must not be `None`")  # noqa: E501
 
         self._published = published
+
+    def to_dict(self):
+        """Konvertiert das Thema-Objekt in ein Dictionary zur JSON-Rückgabe."""
+        return {
+            "name": self._name,
+            "code": self._code,
+            "published": self._published
+        }

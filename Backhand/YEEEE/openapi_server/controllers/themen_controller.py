@@ -19,31 +19,32 @@ def generate_code(length: int = 5) -> str:
 
 def themen_get(public=None):
     try:
+        # Query-Parameter normalisieren
         if public is not None:
             if isinstance(public, str):
                 public = public.lower() == 'true'
-            response = supabase.table("Themen").select("*").eq("public", public).execute()  # Großes T bei Tabelle
+            response = supabase.table("Themen").select("*").eq("public", public).execute()
         else:
             response = supabase.table("Themen").select("*").execute()
 
-        print("GET Ergebnis:", response.data, response.error, response.status_code)
+        print("GET Ergebnis:", response.data)
 
-        if response.error:
-            return {"message": f"Fehler beim Abrufen: {response.error.message}"}, 500
-
+        # Konvertiere Daten zu Thema-Objekten
         themen_list = []
         for item in response.data:
             thema = Thema(
                 name=item.get("name"),
                 code=item.get("code"),
-                published=item.get("public", False)  # In deinem Modell kannst du published auf public mappen
+                published=item.get("public", False)
             )
-            themen_list.append(thema)
+            themen_list.append(thema.to_dict())
 
         return themen_list, 200
 
     except Exception as e:
+        print("Fehler beim Abrufen:", e)
         return {"message": f"Fehler beim Abrufen: {str(e)}"}, 500
+
 
 
 def themen_post(body) -> Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]]:

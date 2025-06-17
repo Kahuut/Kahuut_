@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter2/auth/session_manager.dart'; // <-- Pfad ggf. anpassen
 import 'sidebar.dart';
 import 'home.dart';
 
@@ -10,9 +12,66 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final TextEditingController _nameController = TextEditingController(text: 'User One');
-  final TextEditingController _emailController = TextEditingController(text: 'user1@gmail.com');
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  final supabase = Supabase.instance.client;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final userId = SessionManager.currentUserId;
+
+    if (userId == null) return;
+
+    try {
+      final response = await supabase
+          .from('User')
+          .select()
+          .eq('id', userId)
+          .maybeSingle();
+
+      if (response != null) {
+        setState(() {
+          _nameController.text = response['name'] ?? '';
+          _emailController.text = response['email'] ?? '';
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fehler beim Laden: $e')),
+      );
+    }
+  }
+
+  Future<void> _saveChanges() async {
+    final userId = SessionManager.currentUserId;
+    if (userId == null) return;
+
+    try {
+      await supabase
+          .from('User')
+          .update({
+        'name': _nameController.text,
+        'email': _emailController.text,
+        if (_passwordController.text.isNotEmpty) 'password': _passwordController.text,
+      })
+          .eq('id', userId);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Änderungen gespeichert')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fehler beim Speichern: $e')),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -28,7 +87,6 @@ class _SettingsPageState extends State<SettingsPage> {
       body: Row(
         children: [
           const Sidebar(activePage: 'Profil'),
-
           Expanded(
             child: Container(
               padding: const EdgeInsets.all(40),
@@ -36,7 +94,6 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Profil-Icon oben rechts, als Home-Button
                   Align(
                     alignment: Alignment.topRight,
                     child: IconButton(
@@ -49,7 +106,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                     ),
                   ),
-
                   const SizedBox(height: 10),
                   const Text(
                     'Benutzereinstellungen',
@@ -88,11 +144,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         const SizedBox(height: 20),
                         ElevatedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Änderungen gespeichert')),
-                            );
-                          },
+                          onPressed: _saveChanges,
                           child: const Text('Speichern'),
                         ),
                       ],

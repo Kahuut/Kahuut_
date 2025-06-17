@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'UserBereich/home.dart'; // Zielseite bei erfolgreichem Login
 import 'package:http/http.dart' as http;
-
+import 'package:flutter2/auth/session_manager.dart'; // <-- anpassen an deinen Pfad
 class SignInAsUserPage extends StatefulWidget {
   const SignInAsUserPage({super.key});
 
@@ -35,14 +35,16 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
             .maybeSingle();
 
         if (response != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Erfolgreich angemeldet')),
-          );
+          // ID aus Supabase-Antwort extrahieren
+          SessionManager.currentUserId = response['user_id']; // ⬅️ ID-Feld aus deiner Tabelle
+          print('Gespeicherte User-ID: ${SessionManager.currentUserId}');
+          // <-- hier
 
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const HomePage()),
           );
+
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Ungültige Anmeldedaten')),
