@@ -1,3 +1,10 @@
+"""
+@package openapi_server.controllers
+@brief Controller für die Verwaltung von Fragen
+@details Ermöglicht das Hinzufügen von Fragen zu bestimmten Themen im Quiz-System.
+
+"""
+
 import connexion
 from supabase import create_client, Client
 from openapi_server.models.frage import Frage
@@ -14,6 +21,18 @@ from fastapi import HTTPException
 
 
 def fragen_post(body) -> tuple:
+    """! Fügt eine neue Frage zu einem Thema hinzu.
+
+    @brief Erstellt eine neue Frage in der Datenbank
+    @param body Die Frage-Daten
+    @type body Frage
+    @return Tuple mit Nachricht und HTTP-Statuscode
+    @rtype tuple
+    @retval ({"message": "Frage gespeichert"}, 201) bei Erfolg
+    @retval ({"message": "Ungültige Eingabe"}, 400) bei ungültigen Daten
+    @retval ({"message": "Fehler beim Speichern: ..."}, 500) bei Datenbankfehlern
+
+    """
     try:
         if connexion.request.is_json:
             frage_data = Frage.parse_obj(connexion.request.get_json())

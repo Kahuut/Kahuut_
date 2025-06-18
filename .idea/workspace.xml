@@ -4,36 +4,14 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce3bc764-6c0f-4798-9ae7-986736d10b01" name="Changes" comment="Logging für Backend">
-      <change afterPath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/models/spiel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/kahuuttttt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/kahuuttttt.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+    <list default="true" id="ce3bc764-6c0f-4798-9ae7-986736d10b01" name="Changes" comment="Logging für Frontend und für Backend überarbeitet sowie login bei admin und beim user das ändern von password email und benutzername">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/controllers/antworten_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/controllers/antworten_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/controllers/auth_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/controllers/auth_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/controllers/fragen_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/controllers/fragen_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/controllers/mehrspieler_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/controllers/mehrspieler_controller.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/controllers/security_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/controllers/security_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/models/antwort.py" beforeDir="false" afterPath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/models/antwort.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/models/base_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/models/base_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/models/frage.py" beforeDir="false" afterPath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/models/frage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/auth/session_manager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/auth/session_manager.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/AdminBereich/AdminStartseite.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/AdminBereich/AdminStartseite.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/AdminBereich/add_new_topic.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/AdminBereich/add_new_topic.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/AdminBereich/choose.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/AdminBereich/choose.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/AdminBereich/start_the_game.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/AdminBereich/start_the_game.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/AdminBereich/topics.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/AdminBereich/topics.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/SignIn.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/SignIn.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/SignInAdmin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/SignInAdmin.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/SignInUser.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/SignInUser.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/SignUp.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/SignUp.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/SignUpAdmin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/SignUpAdmin.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/SignUpUser.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/SignUpUser.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/UserBereich/UserStartseite.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/UserBereich/UserStartseite.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/UserBereich/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/UserBereich/home.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/UserBereich/play.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/UserBereich/play.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/UserBereich/play_topic.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/UserBereich/play_topic.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/UserBereich/settings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/UserBereich/settings.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/lib/pages/UserBereich/sidebar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/lib/pages/UserBereich/sidebar.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/controllers/themen_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/Backend/YEEEE/openapi_server/controllers/themen_controller.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -242,7 +220,15 @@
       <option name="project" value="LOCAL" />
       <updated>1750240147608</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Logging für Frontend und für Backend überarbeitet sowie login bei admin und beim user das ändern von password email und benutzername">
+      <option name="closed" value="true" />
+      <created>1750252275584</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1750252275584</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -268,7 +254,8 @@
     <MESSAGE value="Update" />
     <MESSAGE value="Mehrspielercontroler programiert sowie SignUp pages für user und adnmin geändert" />
     <MESSAGE value="Logging für Backend" />
-    <option name="LAST_COMMIT_MESSAGE" value="Logging für Backend" />
+    <MESSAGE value="Logging für Frontend und für Backend überarbeitet sowie login bei admin und beim user das ändern von password email und benutzername" />
+    <option name="LAST_COMMIT_MESSAGE" value="Logging für Frontend und für Backend überarbeitet sowie login bei admin und beim user das ändern von password email und benutzername" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

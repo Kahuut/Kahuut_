@@ -1,3 +1,11 @@
+"""! @file auth_controller.py
+
+@package openapi_server.controllers
+@brief Der auth_controller behandelt die Authentifizierung und Registrierung von Benutzern.
+@details Er stellt Funktionen für die Registrierung von Admins und normalen Benutzern sowie für den Login bereit.
+
+"""
+
 import connexion
 import bcrypt
 from typing import Dict, Tuple, Union
@@ -14,15 +22,45 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# 🔐 Passwort-Hashing
 def hash_password(password: str) -> str:
+    """! Hasht ein Passwort mit bcrypt.
+
+    @brief Verschlüsselt ein Passwort mit dem bcrypt-Algorithmus
+    @param password Das zu hashende Passwort
+    @type password str
+    @return Das gehashte Passwort als String
+    @rtype str
+
+    """
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 def verify_password(password: str, hashed: str) -> bool:
+    """! Überprüft, ob ein Passwort zu einem Hash passt.
+
+    @brief Verifiziert ein Passwort gegen einen bcrypt-Hash
+    @param password Das zu überprüfende Passwort
+    @type password str
+    @param hashed Der bcrypt-Hash zum Vergleich
+    @type hashed str
+    @return True wenn das Passwort korrekt ist, sonst False
+    @rtype bool
+
+    """
     return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
 
-# 🧑‍💼 Admin registrieren
 def auth_admin_register_post(body) -> Union[Dict, Tuple[Dict, int]]:
+    """! Registriert einen neuen Admin.
+
+    @brief Erstellt einen neuen Admin-Account in der Datenbank
+    @param body Die Registrierungsdaten als RegisterAdmin-Objekt
+    @type body RegisterAdmin
+    @return Tuple mit Nachricht und HTTP-Statuscode
+    @rtype Union[Dict, Tuple[Dict, int]]
+    @retval ({"message": "Admin erfolgreich registriert."}, 201) bei Erfolg
+    @retval ({"message": "Admin existiert bereits."}, 409) wenn die Email bereits existiert
+    @retval ({"message": "Ungültige Eingabe."}, 400) bei ungültigen Daten
+
+    """
     if connexion.request.is_json:
         register_admin = RegisterAdmin.from_dict(connexion.request.get_json())
 
@@ -44,8 +82,19 @@ def auth_admin_register_post(body) -> Union[Dict, Tuple[Dict, int]]:
     logger.warning("Ungültige Eingabe bei Admin-Registrierung.")
     return {"message": "Ungültige Eingabe."}, 400
 
-# 👤 User registrieren
 def auth_user_register_post(body) -> Union[Dict, Tuple[Dict, int]]:
+    """! Registriert einen neuen User.
+
+    @brief Erstellt einen neuen Benutzer-Account in der Datenbank
+    @param body Die Registrierungsdaten als RegisterUser-Objekt
+    @type body RegisterUser
+    @return Tuple mit Nachricht und HTTP-Statuscode
+    @rtype Union[Dict, Tuple[Dict, int]]
+    @retval ({"message": "User erfolgreich registriert."}, 201) bei Erfolg
+    @retval ({"message": "User existiert bereits."}, 409) wenn die Email bereits existiert
+    @retval ({"message": "Ungültige Eingabe."}, 400) bei ungültigen Daten
+
+    """
     if connexion.request.is_json:
         register_user = RegisterUser.from_dict(connexion.request.get_json())
 
@@ -67,8 +116,21 @@ def auth_user_register_post(body) -> Union[Dict, Tuple[Dict, int]]:
     logger.warning("Ungültige Eingabe bei User-Registrierung.")
     return {"message": "Ungültige Eingabe."}, 400
 
-# 🔑 Login
 def auth_login_post(body) -> Union[Dict, Tuple[Dict, int]]:
+    """! Authentifiziert einen User oder Admin.
+
+    @brief Prüft Login-Daten und authentifiziert den Benutzer
+    @param body Die Login-Daten als Login-Objekt
+    @type body Login
+    @return Tuple mit Nachricht und HTTP-Statuscode
+    @rtype Union[Dict, Tuple[Dict, int]]
+    @retval ({"message": "Admin Login erfolgreich."}, 200) bei erfolgreichem Admin-Login
+    @retval ({"message": "User Login erfolgreich."}, 200) bei erfolgreichem User-Login
+    @retval ({"message": "Falsches Passwort."}, 401) bei falschem Passwort
+    @retval ({"message": "Benutzer nicht gefunden."}, 404) wenn die Email nicht existiert
+    @retval ({"message": "Ungültige Eingabe."}, 400) bei ungültigen Daten
+    
+    """
     if connexion.request.is_json:
         login = Login.from_dict(connexion.request.get_json())
 

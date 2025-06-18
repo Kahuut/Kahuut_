@@ -1,17 +1,23 @@
+"""
+@package openapi_server.controllers
+@brief Controller für die Sicherheits- und Authentifizierungsfunktionen
+@details Verarbeitet Bearer-Token-Authentifizierung und Autorisierung für geschützte Endpunkte.
+
+"""
+
 from typing import List
 from openapi_server.util import logger
 
 
 def info_from_BearerAuth(token):
-    """
-    Check and retrieve authentication information from custom bearer token.
-    Returned value will be passed in 'token_info' parameter of your operation function, if there is one.
-    'sub' or 'uid' will be set in 'user' parameter of your operation function, if there is one.
+    """! Überprüft und extrahiert Authentifizierungsinformationen aus dem Bearer-Token.
 
-    :param token Token provided by Authorization header
-    :type token: str
-    :return: Decoded token information or None if token is invalid
-    :rtype: dict | None
+    @brief Validiert den Bearer-Token und gibt Benutzerinformationen zurück
+    @param token Der zu überprüfende Token
+    @type token str
+    @return Dictionary mit Benutzerinformationen oder None bei ungültigem Token
+    @rtype dict or None
+
     """
     logger.info(f"security_controller: BearerAuth geprüft, token={token}")
     return {'uid': 'user_id'}

@@ -1,3 +1,10 @@
+"""
+@package openapi_server.controllers
+@brief Controller für die Verwaltung von Quiz-Themen
+@details Ermöglicht das Erstellen und Abrufen von Quiz-Themen, mit Unterstützung für öffentliche und private Themen.
+
+"""
+
 import json
 import random
 import string
@@ -14,11 +21,31 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def generate_code(length: int = 5) -> str:
+    """! Generiert einen zufälligen Code für ein Thema.
+
+    @brief Erstellt einen zufälligen Code aus Großbuchstaben und Zahlen
+    @param length Länge des zu generierenden Codes
+    @type length int
+    @return Der generierte Code
+    @rtype str
+
+    """
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
 
 
 def themen_get(public=None):
+    """! Ruft alle Themen ab, optional gefiltert nach öffentlichen Themen.
+
+    @brief Gibt eine Liste aller Themen zurück
+    @param public Optional: Filter für öffentliche Themen
+    @type public bool or None
+    @return Liste von Themen und HTTP-Statuscode
+    @rtype tuple
+    @retval (themen_list, 200) bei Erfolg
+    @retval ({"message": "Fehler beim Abrufen: ..."}, 500) bei Datenbankfehlern
+
+    """
     try:
         # Query-Parameter normalisieren
         if public is not None:
@@ -49,6 +76,17 @@ def themen_get(public=None):
 
 
 def themen_post(body) -> Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]]:
+    """! Erstellt ein neues Quiz-Thema.
+
+    @brief Fügt ein neues Thema in die Datenbank ein (nur für Admins)
+    @param body Die Themen-Daten
+    @type body Thema
+    @return None oder Tuple mit Status und optionaler Fehlermeldung
+    @rtype Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]]
+    @retval (None, 201) bei Erfolg
+    @retval ({"message": "Unauthorized - ..."}, 401) bei fehlender/ungültiger Authentifizierung
+
+    """
     # Authorization prüfen
     auth_header = connexion.request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):

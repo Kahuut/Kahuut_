@@ -1,3 +1,10 @@
+"""
+@package openapi_server.controllers
+@brief Controller für die Verwaltung von Antworten
+@details Ermöglicht das Hinzufügen von Antworten zu Fragen im Quiz-System.
+
+"""
+
 import connexion
 from supabase import create_client, Client
 from openapi_server.models.antwort import Antwort
@@ -10,6 +17,18 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def antworten_post(body) -> tuple:
+    """! Fügt eine neue Antwort zu einer Frage hinzu.
+
+    @brief Erstellt eine neue Antwort in der Datenbank
+    @param body Die Antwort-Daten
+    @type body Antwort
+    @return Tuple mit Nachricht und HTTP-Statuscode
+    @rtype tuple
+    @retval ({"message": "Antwort gespeichert"}, 201) bei Erfolg
+    @retval ({"message": "Ungültige Eingabe"}, 400) bei ungültigen Daten
+    @retval ({"message": "Fehler beim Speichern: ..."}, 500) bei Datenbankfehlern
+
+    """
     try:
         if connexion.request.is_json:
             antwort_data = Antwort.parse_obj(connexion.request.get_json())

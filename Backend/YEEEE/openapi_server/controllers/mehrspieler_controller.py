@@ -1,3 +1,10 @@
+"""
+@package openapi_server.controllers
+@brief Controller für die Mehrspieler-Funktionalität
+@details Verwaltet das Starten und Beitreten von Mehrspieler-Quiz-Spielen.
+
+"""
+
 import connexion
 from typing import Union, Tuple, Dict
 from openapi_server.models.mehrspieler_join_post_request import MehrspielerJoinPostRequest  # noqa: E501
@@ -12,7 +19,19 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 def mehrspieler_start_post(body) -> Union[Dict, Tuple[Dict, int]]:
-    """Mehrspieler-Quiz starten (nur Admin)"""
+    """! Startet ein neues Mehrspieler-Quiz-Spiel.
+
+    @brief Erstellt ein neues Mehrspieler-Spiel für ein öffentliches Thema
+    @param body Die Start-Request-Daten
+    @type body MehrspielerStartPostRequest
+    @return Dictionary oder Tuple mit Nachricht und HTTP-Statuscode
+    @rtype Union[Dict, Tuple[Dict, int]]
+    @retval ({"message": "Spiel mit Code '...' wurde gestartet."}, 201) bei Erfolg
+    @retval ({"message": "Ungültige Eingabe. JSON erwartet."}, 400) bei ungültigen Daten
+    @retval ({"message": "Unauthorized - ..."}, 401) bei fehlender/ungültiger Authentifizierung
+    @retval ({"message": "Kein öffentliches Thema mit diesem Code gefunden."}, 404) wenn Thema nicht existiert
+
+    """
     try:
         if not connexion.request.is_json:
             return {"message": "Ungültige Eingabe. JSON erwartet."}, 400
@@ -65,7 +84,19 @@ def mehrspieler_start_post(body) -> Union[Dict, Tuple[Dict, int]]:
 
 
 def mehrspieler_join_post(body) -> Union[Dict, Tuple[Dict, int]]:
-    """Spieler dem Mehrspieler-Spiel per Code hinzufügen"""
+    """! Fügt einen Spieler einem existierenden Mehrspieler-Spiel hinzu.
+
+    @brief Lässt einen Spieler einem Mehrspieler-Spiel beitreten
+    @param body Die Join-Request-Daten
+    @type body MehrspielerJoinPostRequest
+    @return Dictionary oder Tuple mit Nachricht und HTTP-Statuscode
+    @rtype Union[Dict, Tuple[Dict, int]]
+    @retval ({"message": "Spieler ... wurde hinzugefügt."}, 200) bei Erfolg
+    @retval ({"message": "Neues Spiel erstellt. Spieler ... hinzugefügt."}, 201) wenn neues Spiel erstellt
+    @retval ({"message": "Ungültige Eingabe. JSON erwartet."}, 400) bei ungültigen Daten
+    @retval ({"message": "Spieler ist bereits im Spiel."}, 400) wenn Spieler bereits teilnimmt
+
+    """
     try:
         if not connexion.request.is_json:
             return {"message": "Ungültige Eingabe. JSON erwartet."}, 400
