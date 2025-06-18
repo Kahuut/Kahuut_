@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 import 'sidebar.dart';
 
 class HomePage extends StatelessWidget {
+  static final _logger = Logger('HomePage');
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    _logger.fine('Building HomePage');
     return Scaffold(
       body: Row(
         children: [

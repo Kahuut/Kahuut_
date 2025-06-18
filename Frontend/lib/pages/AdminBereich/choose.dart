@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:logging/logging.dart';
 
 class ChoosePage extends StatefulWidget {
   const ChoosePage({super.key});
@@ -9,32 +10,37 @@ class ChoosePage extends StatefulWidget {
 }
 
 class _ChoosePageState extends State<ChoosePage> {
+  static final _logger = Logger('ChoosePage');
   List<Map<String, dynamic>> _topics = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _logger.info('Initializing ChoosePage');
     _loadTopics();
   }
 
   Future<void> _loadTopics() async {
+    _logger.info('Loading topics for selection');
     setState(() {
       _isLoading = true;
     });
 
     try {
+      _logger.fine('Fetching topics from database');
       final response = await Supabase.instance.client
           .from('Themen')
           .select('id_themen, name, code')
           .execute();
 
       final data = response.data as List<dynamic>? ?? [];
+      _logger.info('Successfully loaded ${data.length} topics');
 
       final topics = data.map((thema) => {
         'id_themen': thema['id_themen'],
         'name': thema['name'],
-        'code': thema['code'], // wichtig für Rückgabe
+        'code': thema['code'],
       }).toList();
 
       setState(() {
@@ -42,6 +48,7 @@ class _ChoosePageState extends State<ChoosePage> {
         _isLoading = false;
       });
     } catch (e) {
+      _logger.severe('Error loading topics', e);
       setState(() {
         _isLoading = false;
       });
@@ -52,17 +59,22 @@ class _ChoosePageState extends State<ChoosePage> {
   }
 
   void _chooseTopic(Map<String, dynamic> topic) {
-    Navigator.pop(context, topic); // Topic zurückgeben an start_the_game.dart
+    _logger.info('Topic selected: ${topic['name']} (ID: ${topic['id_themen']})');
+    Navigator.pop(context, topic);
   }
 
   @override
   Widget build(BuildContext context) {
+    _logger.fine('Building ChoosePage');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Choose Topic'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            _logger.info('Returning without selection');
+            Navigator.pop(context);
+          },
         ),
       ),
       body: Padding(

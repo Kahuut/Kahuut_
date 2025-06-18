@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:logging/logging.dart';
 import 'UserBereich/home.dart'; // Zielseite bei erfolgreichem Login
-import 'package:http/http.dart' as http;
 import 'package:flutter2/auth/session_manager.dart'; // <-- anpassen an deinen Pfad
+
 class SignInAsUserPage extends StatefulWidget {
   const SignInAsUserPage({super.key});
 
@@ -11,46 +12,44 @@ class SignInAsUserPage extends StatefulWidget {
 }
 
 class _SignInAsUserPageState extends State<SignInAsUserPage> {
+  static final _logger = Logger('SignInAsUserPage');
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   final supabase = Supabase.instance.client;
 
   Future<void> _signIn() async {
-    const String apiUrl = "http://127.0.0.1:8080/Login";
-    final username = _usernameController.text.trim();
+    _logger.info('Attempting user sign in');
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     if (_formKey.currentState!.validate()) {
       try {
+        _logger.info('Validating user credentials for email: $email');
         final response = await supabase
-            .from('User') // 🔁 <-- Tabellenname prüfen
+            .from('User')
             .select()
-            .eq('name', username)
             .eq('email', email)
             .eq('password', password) // ⚠️ Nur zu Lernzwecken unverschlüsselt
             .maybeSingle();
 
         if (response != null) {
-          SessionManager.currentUserId = response['id_user']; // KORREKT
-          print('Gespeicherte User-ID: ${SessionManager.currentUserId}');
+          SessionManager.currentUserId = response['id_user'];
+          _logger.info('User successfully logged in. User ID: ${SessionManager.currentUserId}');
 
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const HomePage()),
           );
-        }
-
-
-       else {
+        } else {
+          _logger.warning('Invalid login credentials for email: $email');
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Ungültige Anmeldedaten')),
           );
         }
       } catch (error) {
+        _logger.severe('Error during login process', error);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Fehler: $error')),
         );
@@ -60,7 +59,7 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _logger.fine('Disposing SignInAsUserPage controllers');
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -68,6 +67,7 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.fine('Building SignInAsUserPage');
     return Scaffold(
       backgroundColor: const Color(0xFFEFF8FF),
       appBar: AppBar(
@@ -101,17 +101,12 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
                   child: Column(
                     children: [
                       TextFormField(
-                        controller: _usernameController,
-                        decoration: const InputDecoration(labelText: 'Benutzername'),
-                        validator: (value) =>
-                        value!.isEmpty ? 'Bitte Benutzername eingeben' : null,
-                      ),
-                      TextFormField(
                         controller: _emailController,
                         decoration: const InputDecoration(labelText: 'E-Mail'),
                         validator: (value) =>
                         value!.isEmpty ? 'Bitte E-Mail eingeben' : null,
                       ),
+                      const SizedBox(height: 16),
                       TextFormField(
                         controller: _passwordController,
                         decoration: const InputDecoration(labelText: 'Passwort'),

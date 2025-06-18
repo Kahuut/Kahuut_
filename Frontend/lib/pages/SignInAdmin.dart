@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:logging/logging.dart';
 import 'AdminBereich/AdminStartseite.dart';
+import 'package:flutter2/auth/session_manager.dart';
 
 class SignInAsAdminPage extends StatefulWidget {
   const SignInAsAdminPage({super.key});
@@ -10,46 +14,65 @@ class SignInAsAdminPage extends StatefulWidget {
 }
 
 class _SignInAsAdminPageState extends State<SignInAsAdminPage> {
+  static final _logger = Logger('SignInAsAdminPage');
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   final supabase = Supabase.instance.client;
 
+  String _hashPassword(String password) {
+    return sha256.convert(utf8.encode(password)).toString();
+  }
+
   Future<void> _signIn() async {
-    final username = _usernameController.text.trim();
+    _logger.info('Versuche Admin anzumelden');
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    if (_formKey.currentState!.validate()) {
-      try {
-        // Datenbankabfrage: admin mit passenden Werten suchen
-        final response = await supabase
-            .from('Admin')
-            .select()
-            .eq('name', username)
-            .eq('email', email)
-            .eq('password', password) // Nur zu Lernzwecken unverschlüsselt
-            .maybeSingle();
+    if (!_formKey.currentState!.validate()) {
+      _logger.warning('Formular ungültig');
+      return;
+    }
 
-        if (response != null) {
+    try {
+      final hashedPassword = _hashPassword(password);
+      _logger.info('Überprüfe Zugangsdaten für $email');
+      final response = await supabase
+          .from('Admin')
+          .select()
+          .eq('email', email)
+          .eq('password', hashedPassword)
+          .maybeSingle();
+
+      if (response != null) {
+        _logger.info('Admin erfolgreich angemeldet: ${response['name']}');
+        SessionManager.currentAdminId = response['id_admin'] ?? response['id'] ?? '';
+
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Admin erfolgreich angemeldet')),
+            const SnackBar(content: Text('Anmeldung erfolgreich')),
           );
 
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const AdminStartseite()),
           );
-        } else {
+        }
+      }
+      else {
+        _logger.warning('Ungültige Zugangsdaten für Admin $email');
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Ungültige Admin-Daten')),
+            const SnackBar(content: Text('Ungültige Zugangsdaten')),
           );
         }
-      } catch (e) {
+      }
+    } catch (e) {
+      _logger.severe('Fehler bei der Anmeldung', e);
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Fehler beim Anmelden: $e')),
+          SnackBar(content: Text('Fehler: $e')),
         );
       }
     }
@@ -57,7 +80,7 @@ class _SignInAsAdminPageState extends State<SignInAsAdminPage> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _logger.fine('Dispose SignInAsAdminPage Controller');
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -65,6 +88,7 @@ class _SignInAsAdminPageState extends State<SignInAsAdminPage> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.fine('Baue SignInAsAdminPage auf');
     return Scaffold(
       backgroundColor: const Color(0xFFEFF8FF),
       appBar: AppBar(
@@ -98,20 +122,18 @@ class _SignInAsAdminPageState extends State<SignInAsAdminPage> {
                   child: Column(
                     children: [
                       TextFormField(
-                        controller: _usernameController,
-                        decoration: const InputDecoration(labelText: 'Benutzername'),
-                        validator: (value) => value!.isEmpty ? 'Bitte Benutzername eingeben' : null,
-                      ),
-                      TextFormField(
                         controller: _emailController,
                         decoration: const InputDecoration(labelText: 'E-Mail'),
-                        validator: (value) => value!.isEmpty ? 'Bitte E-Mail eingeben' : null,
+                        validator: (value) =>
+                        value == null || value.trim().isEmpty ? 'E-Mail erforderlich' : null,
                       ),
+                      const SizedBox(height: 16),
                       TextFormField(
                         controller: _passwordController,
-                        decoration: const InputDecoration(labelText: 'Passwort'),
                         obscureText: true,
-                        validator: (value) => value!.isEmpty ? 'Bitte Passwort eingeben' : null,
+                        decoration: const InputDecoration(labelText: 'Passwort'),
+                        validator: (value) =>
+                        value == null || value.isEmpty ? 'Passwort erforderlich' : null,
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(

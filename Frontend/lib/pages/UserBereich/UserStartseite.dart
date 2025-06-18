@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 import 'sidebar.dart';
 import 'home.dart';
 
 class UserStartseite extends StatelessWidget {
+  static final _logger = Logger('UserStartseite');
   const UserStartseite({super.key});
 
   @override
   Widget build(BuildContext context) {
+    _logger.fine('Building UserStartseite');
     return Scaffold(
       body: Row(
         children: [
@@ -24,6 +27,7 @@ class UserStartseite extends StatelessWidget {
                     child: IconButton(
                       icon: const Icon(Icons.account_circle, size: 40, color: Colors.black54),
                       onPressed: () {
+                        _logger.info('Navigating to HomePage');
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (_) => const HomePage()),

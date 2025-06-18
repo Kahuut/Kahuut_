@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:logging/logging.dart';
 import 'package:flutter2/pages/UserBereich/UserStartseite.dart';
-import 'package:flutter2/auth/session_manager.dart'; // <-- Hier SessionManager importieren
+import 'package:flutter2/auth/session_manager.dart';
 
 class SignUpAsUserPage extends StatefulWidget {
   const SignUpAsUserPage({super.key});
@@ -11,6 +12,7 @@ class SignUpAsUserPage extends StatefulWidget {
 }
 
 class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
+  static final _logger = Logger('SignUpAsUserPage');
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -19,13 +21,14 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
   final supabase = Supabase.instance.client;
 
   Future<void> _register() async {
+    _logger.info('Starting user registration process');
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     if (_formKey.currentState!.validate()) {
       try {
-        // Existenzprüfung
+        _logger.info('Checking for existing user with name: $name or email: $email');
         final existingUser = await supabase
             .from('User')
             .select()
@@ -33,20 +36,21 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
             .maybeSingle();
 
         if (existingUser != null) {
+          _logger.warning('User already exists with name: $name or email: $email');
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Benutzername oder E-Mail existiert bereits')),
           );
           return;
         }
 
-        // Benutzer registrieren
+        _logger.info('Registering new user: $name');
         await supabase.from('User').insert({
           'name': name,
           'email': email,
           'password': password, // Achtung: Nur zu Lernzwecken im Klartext
         });
 
-        // Benutzer-ID abrufen
+        _logger.info('Fetching user ID for newly registered user');
         final newUser = await supabase
             .from('User')
             .select('id_user')
@@ -55,7 +59,7 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
 
         if (newUser != null) {
           SessionManager.currentUserId = newUser['id_user'];
-          print('Registrierte Benutzer-ID: ${SessionManager.currentUserId}');
+          _logger.info('User successfully registered with ID: ${SessionManager.currentUserId}');
         }
 
         // Navigation zur Startseite
@@ -64,6 +68,7 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
           MaterialPageRoute(builder: (_) => const UserStartseite()),
         );
       } catch (error) {
+        _logger.severe('Error during user registration', error);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Fehler bei der Registrierung: $error')),
         );
@@ -73,6 +78,7 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
 
   @override
   void dispose() {
+    _logger.fine('Disposing SignUpAsUserPage controllers');
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -80,6 +86,7 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
   }
 
   void _openMicrosoftLogin() {
+    _logger.info('Opening Microsoft login page');
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const MicrosoftLoginPage()),
@@ -88,6 +95,7 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.fine('Building SignUpAsUserPage');
     return Scaffold(
       backgroundColor: const Color(0xFFEFF8FF),
       body: Center(

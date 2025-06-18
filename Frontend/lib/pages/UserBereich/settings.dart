@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter2/auth/session_manager.dart'; // <-- SessionManager
+import 'package:logging/logging.dart';
+import 'package:flutter2/auth/session_manager.dart';
 import 'sidebar.dart';
 import 'home.dart';
 
@@ -12,6 +13,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  static final _logger = Logger('SettingsPage');
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -21,31 +23,40 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
+    _logger.info('Initializing SettingsPage');
     _loadUserData();
   }
 
   Future<void> _loadUserData() async {
     final userId = SessionManager.currentUserId;
-    print("Aktuelle User-ID: $userId");
+    _logger.info('Loading user data for ID: $userId');
 
-    if (userId == null) return;
+    if (userId == null) {
+      _logger.warning('No user ID available');
+      return;
+    }
 
     try {
+      _logger.fine('Fetching user data from database');
       final response = await supabase
           .from('User')
           .select()
           .eq('id_user', userId)
           .maybeSingle();
 
-      print("Geladene Userdaten: $response");
+      _logger.fine('User data response received');
 
       if (response != null) {
+        _logger.info('Successfully loaded user data');
         setState(() {
           _nameController.text = response['name'] ?? '';
           _emailController.text = response['email'] ?? '';
         });
+      } else {
+        _logger.warning('No user data found for ID: $userId');
       }
     } catch (e) {
+      _logger.severe('Error loading user data', e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Fehler beim Laden: $e')),
       );
@@ -54,23 +65,35 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _saveChanges() async {
     final userId = SessionManager.currentUserId;
-    if (userId == null) return;
+    if (userId == null) {
+      _logger.warning('Attempting to save changes without user ID');
+      return;
+    }
 
+    _logger.info('Saving user profile changes');
     try {
-      await supabase
-          .from('User')
-          .update({
+      final updates = {
         'name': _nameController.text,
         'email': _emailController.text,
-        if (_passwordController.text.isNotEmpty)
-          'password': _passwordController.text,
-      })
+      };
+
+      if (_passwordController.text.isNotEmpty) {
+        _logger.info('Password change detected');
+        updates['password'] = _passwordController.text;
+      }
+
+      _logger.fine('Updating user data in database');
+      await supabase
+          .from('User')
+          .update(updates)
           .eq('id_user', userId);
 
+      _logger.info('User profile successfully updated');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Änderungen gespeichert')),
       );
     } catch (e) {
+      _logger.severe('Error saving user data', e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Fehler beim Speichern: $e')),
       );
@@ -79,6 +102,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void dispose() {
+    _logger.fine('Disposing SettingsPage controllers');
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -87,6 +111,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.fine('Building SettingsPage');
     return Scaffold(
       body: Row(
         children: [

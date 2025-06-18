@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:logging/logging.dart';
 import 'constants.dart';
 import 'pages/SignIn.dart';
 import 'pages/SignUp.dart';
@@ -7,19 +8,35 @@ import 'pages/SignUp.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Supabase.initialize(
-    url: supabaseUrl,
-    anonKey: supabaseAnonKey,//
-  );
+  // Initialize logging
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    debugPrint('${record.level.name}: ${record.time}: ${record.message}');
+  });
+
+  final logger = Logger('KahuutApp');
+  logger.info('Starting Kahuut application...');
+
+  try {
+    await Supabase.initialize(
+      url: supabaseUrl,
+      anonKey: supabaseAnonKey,
+    );
+    logger.info('Supabase initialized successfully');
+  } catch (e) {
+    logger.severe('Failed to initialize Supabase', e);
+  }
 
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  static final logger = Logger('MyApp');
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    logger.fine('Building MyApp widget');
     return MaterialApp(
       title: 'Kahuutt',
       debugShowCheckedModeBanner: false,
@@ -33,10 +50,12 @@ class MyApp extends StatelessWidget {
 }
 
 class HomeScreen extends StatelessWidget {
+  static final logger = Logger('HomeScreen');
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    logger.fine('Building HomeScreen widget');
     return Scaffold(
       backgroundColor: const Color(0xFFEFF8FF),
       body: Center(
@@ -57,6 +76,7 @@ class HomeScreen extends StatelessWidget {
               children: [
                 OutlinedButton(
                   onPressed: () {
+                    logger.info('Navigating to Sign In page');
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const SignInPage()),
@@ -67,6 +87,7 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () {
+                    logger.info('Navigating to Sign Up page');
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const SignUpPage()),

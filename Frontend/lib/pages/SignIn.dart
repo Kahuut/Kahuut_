@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter2/pages/SignUpAdmin.dart';
+import 'package:logging/logging.dart';
 import 'SignInUser.dart';
 import 'SignInAdmin.dart';
 
 
 class SignInPage extends StatelessWidget {
+  static final _logger = Logger('SignInPage');
   const SignInPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    _logger.fine('Building SignInPage');
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: AppBar(title: const Text("Sign In")),
@@ -23,6 +26,7 @@ class SignInPage extends StatelessWidget {
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
+                _logger.info('Navigating to Sign In as User page');
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const SignInAsUserPage()),
@@ -37,6 +41,7 @@ class SignInPage extends StatelessWidget {
             const SizedBox(height: 16),
             OutlinedButton(
               onPressed: () {
+                _logger.info('Navigating to Sign In as Admin page');
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const SignInAsAdminPage()),

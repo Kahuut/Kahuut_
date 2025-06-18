@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:logging/logging.dart';
 import 'AdminStartseite.dart';
 import 'topics.dart';
 import 'dart:math';
@@ -12,6 +13,7 @@ class AddNewTopic extends StatefulWidget {
 }
 
 class _AddNewTopicState extends State<AddNewTopic> {
+  static final _logger = Logger('AddNewTopic');
   final TextEditingController _topicNameController = TextEditingController();
   final TextEditingController _questionController = TextEditingController();
   final List<TextEditingController> _optionControllers = [];
@@ -23,10 +25,12 @@ class _AddNewTopicState extends State<AddNewTopic> {
   @override
   void initState() {
     super.initState();
+    _logger.info('Initializing AddNewTopic page');
     _initializeOptions(selectedOptionCount);
   }
 
   void _initializeOptions(int count) {
+    _logger.fine('Initializing $count options');
     _optionControllers.clear();
     _isOptionCorrect.clear();
     for (int i = 0; i < count; i++) {
@@ -36,6 +40,7 @@ class _AddNewTopicState extends State<AddNewTopic> {
   }
 
   String _generateUniqueCode() {
+    _logger.fine('Generating unique code');
     final random = Random();
     List<int> digits = [];
     while (digits.length < 6) {
@@ -44,14 +49,18 @@ class _AddNewTopicState extends State<AddNewTopic> {
         digits.add(digit);
       }
     }
-    return digits.join();
+    final code = digits.join();
+    _logger.info('Generated unique code: $code');
+    return code;
   }
 
   Future<void> _saveTopicToDatabase() async {
+    _logger.info('Starting to save new topic to database');
     final topicName = _topicNameController.text.trim();
     final code = _generateUniqueCode();
 
     if (topicName.isEmpty || _questionsList.isEmpty) {
+      _logger.warning('Attempted to save topic with empty name or no questions');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Bitte gib einen Namen und mindestens eine Frage ein.')),
       );
@@ -59,6 +68,7 @@ class _AddNewTopicState extends State<AddNewTopic> {
     }
 
     try {
+      _logger.info('Inserting new topic: $topicName');
       final insertedTopic = await Supabase.instance.client
           .from('Themen')
           .insert({'name': topicName, 'code': code, 'public': _isPublic})
@@ -66,20 +76,24 @@ class _AddNewTopicState extends State<AddNewTopic> {
           .single();
 
       final topicId = insertedTopic['id_themen'];
+      _logger.info('Topic created with ID: $topicId');
 
       for (final q in _questionsList) {
+        _logger.fine('Adding question: ${q.question}');
         final insertedQuestion = await Supabase.instance.client
             .from('Fragen')
             .insert({
-          'frage': q.question,
-          'fk_id_themen': topicId,
-        })
+              'frage': q.question,
+              'fk_id_themen': topicId,
+            })
             .select()
             .single();
 
         final questionId = insertedQuestion['id_frage'];
+        _logger.fine('Question created with ID: $questionId');
 
         for (int i = 0; i < q.options.length; i++) {
+          _logger.fine('Adding answer option ${i + 1} for question $questionId');
           await Supabase.instance.client.from('Antworten').insert({
             'antwort': q.options[i],
             'richtig': q.isCorrect[i],
@@ -88,6 +102,7 @@ class _AddNewTopicState extends State<AddNewTopic> {
         }
       }
 
+      _logger.info('Successfully saved topic with ${_questionsList.length} questions');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Thema erfolgreich erstellt!')),
       );
@@ -101,13 +116,8 @@ class _AddNewTopicState extends State<AddNewTopic> {
         _isPublic = false;
       });
 
-      // Optional: Automatisch zur TopicsPage zurückkehren
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => const TopicsPage()),
-      // );
-
     } catch (e) {
+      _logger.severe('Error saving topic to database', e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Fehler beim Speichern: $e')),
       );
@@ -116,6 +126,7 @@ class _AddNewTopicState extends State<AddNewTopic> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.fine('Building AddNewTopic page');
     return Scaffold(
       backgroundColor: Colors.blue.shade50,
       body: Padding(

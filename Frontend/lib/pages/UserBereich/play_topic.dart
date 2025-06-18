@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'home.dart'; // Pfad zu deiner Home-Seite anpassen
+import 'package:logging/logging.dart';
+import 'home.dart';
 
 class PlayTopicPage extends StatefulWidget {
   final String topicId;
@@ -61,6 +62,7 @@ class Answer {
 }
 
 class _PlayTopicPageState extends State<PlayTopicPage> {
+  static final _logger = Logger('PlayTopicPage');
   final supabase = Supabase.instance.client;
 
   List<Question> questions = [];
@@ -72,32 +74,36 @@ class _PlayTopicPageState extends State<PlayTopicPage> {
   @override
   void initState() {
     super.initState();
+    _logger.info('Initializing PlayTopicPage for topic: ${widget.topicName}');
     _loadQuestions();
   }
 
   Future<void> _loadQuestions() async {
+    _logger.info('Loading questions for topic: ${widget.topicName}');
     setState(() {
       isLoading = true;
     });
 
     try {
+      _logger.fine('Fetching questions from database for topic ID: ${widget.topicId}');
       final response = await supabase
           .from('Fragen')
           .select('id_frage, frage, Antworten(id_antwort, antwort, richtig)')
           .eq('fk_id_themen', widget.topicId)
           .execute();
 
-
-
       final data = response.data as List<dynamic>;
       questions = data.map((e) => Question.fromMap(e)).toList();
+      _logger.info('Successfully loaded ${questions.length} questions');
 
       if (questions.isEmpty) {
+        _logger.warning('No questions found for topic: ${widget.topicName}');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Keine Fragen gefunden.')),
         );
       }
     } catch (e) {
+      _logger.severe('Error loading questions', e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Fehler beim Laden der Fragen: $e')),
       );
@@ -110,24 +116,34 @@ class _PlayTopicPageState extends State<PlayTopicPage> {
 
   void _nextQuestion() {
     if (selectedAnswerIndex == null) {
+      _logger.warning('Attempted to proceed without selecting an answer');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Bitte eine Antwort auswählen')),
       );
       return;
     }
 
+    _logger.fine('Processing answer for question ${currentIndex + 1}');
     if (questions[currentIndex].answers[selectedAnswerIndex!].isCorrect) {
       correctAnswers++;
+      _logger.info('Correct answer given for question ${currentIndex + 1}');
+    } else {
+      _logger.info('Incorrect answer given for question ${currentIndex + 1}');
     }
 
     setState(() {
       selectedAnswerIndex = null;
       currentIndex++;
     });
+
+    if (currentIndex >= questions.length) {
+      _logger.info('Quiz completed. Final score: $correctAnswers/${questions.length}');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    _logger.fine('Building PlayTopicPage state');
     if (isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),

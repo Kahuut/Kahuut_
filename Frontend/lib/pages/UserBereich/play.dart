@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:logging/logging.dart';
 import 'play_topic.dart';
-import 'home.dart';  // Importiere deine home.dart Datei
+import 'home.dart';
 
 class Topic {
   final String id;
@@ -27,6 +28,7 @@ class PlayPage extends StatefulWidget {
 }
 
 class _PlayPageState extends State<PlayPage> {
+  static final _logger = Logger('PlayPage');
   final supabase = Supabase.instance.client;
 
   List<Topic> topics = [];
@@ -36,30 +38,34 @@ class _PlayPageState extends State<PlayPage> {
   @override
   void initState() {
     super.initState();
+    _logger.info('Initializing PlayPage');
     _loadTopics();
   }
 
   Future<void> _loadTopics() async {
+    _logger.info('Loading topics');
     setState(() {
       isLoading = true;
     });
 
     try {
+      _logger.fine('Fetching public topics from database');
       final response = await supabase
           .from('Themen')
           .select('id_themen, name, code')
           .eq('public', true)
           .execute();
 
-
-
       final data = response.data as List<dynamic>;
       topics = data.map((e) => Topic.fromMap(e)).toList();
+      _logger.info('Successfully loaded ${topics.length} topics');
 
       if (topics.isNotEmpty) {
         selectedTopic = topics[0];
+        _logger.fine('Selected default topic: ${selectedTopic!.name}');
       }
     } catch (e) {
+      _logger.severe('Error loading topics', e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Fehler beim Laden der Themen: $e')),
       );
@@ -71,8 +77,12 @@ class _PlayPageState extends State<PlayPage> {
   }
 
   void _startGame() {
-    if (selectedTopic == null) return;
+    if (selectedTopic == null) {
+      _logger.warning('Attempting to start game without selected topic');
+      return;
+    }
 
+    _logger.info('Starting game with topic: ${selectedTopic!.name}');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -87,13 +97,14 @@ class _PlayPageState extends State<PlayPage> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.fine('Building PlayPage');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Spiel starten'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // Zurück zur home.dart navigieren
+            _logger.info('Navigating back to HomePage');
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (_) => const HomePage()),

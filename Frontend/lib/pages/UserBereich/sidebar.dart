@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 import '../../main.dart';
 import 'play.dart';
 import 'settings.dart';
 import 'home.dart';
+import 'package:flutter2/auth/session_manager.dart';
 
 class Sidebar extends StatelessWidget {
+  static final _logger = Logger('Sidebar');
   final String activePage;
   const Sidebar({super.key, required this.activePage});
 
   @override
   Widget build(BuildContext context) {
+    _logger.fine('Building Sidebar with active page: $activePage');
+
     Widget buildMenuButton(String label, IconData icon, VoidCallback onTap) {
       bool isActive = activePage == label;
       return InkWell(
-        onTap: onTap,
+        onTap: () {
+          _logger.info('Navigating to: $label');
+          onTap();
+        },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
           color: isActive ? Colors.grey.shade600 : Colors.grey.shade300,
@@ -36,6 +44,7 @@ class Sidebar extends StatelessWidget {
           const SizedBox(height: 60),
           InkWell(
             onTap: () {
+              _logger.info('Navigating to HomePage via profile icon');
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (_) => const HomePage()),
@@ -58,8 +67,9 @@ class Sidebar extends StatelessWidget {
           }),
           const Spacer(),
 
-          // Logout Button
           buildMenuButton('Log out', Icons.logout, () {
+            _logger.info('User logging out');
+            SessionManager.clear();  // Session-Daten löschen
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const MyApp()),

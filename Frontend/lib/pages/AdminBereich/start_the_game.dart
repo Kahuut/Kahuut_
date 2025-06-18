@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter2/pages/AdminBereich/AdminStartseite.dart';
 import 'package:flutter2/pages/AdminBereich/topics.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:logging/logging.dart';
 import 'choose.dart';
 
 class StartTheGamePage extends StatefulWidget {
@@ -12,6 +13,7 @@ class StartTheGamePage extends StatefulWidget {
 }
 
 class _StartTheGamePageState extends State<StartTheGamePage> {
+  static final _logger = Logger('StartTheGamePage');
   Map<String, dynamic>? selectedTopic;
   String gameCode = '';
   List<Map<String, dynamic>> players = [];
@@ -19,18 +21,21 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
   @override
   void initState() {
     super.initState();
+    _logger.info('Initializing StartTheGamePage');
     _loadPlayers();
   }
 
   Future<void> _loadPlayers() async {
+    _logger.info('Loading players list');
     try {
+      _logger.fine('Fetching players from database');
       final response = await Supabase.instance.client
-          .from('User')  // Groß-U und Anführungszeichen
+          .from('User')
           .select('id_user, name')
           .execute();
 
-
       final data = response.data as List<dynamic>? ?? [];
+      _logger.info('Successfully loaded ${data.length} players');
 
       setState(() {
         players = data.map((p) => {
@@ -39,28 +44,33 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
         }).toList();
       });
     } catch (e) {
+      _logger.severe('Error loading players', e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Fehler beim Laden der Spieler: $e')),
       );
     }
   }
 
-
   void _chooseTopic() async {
+    _logger.info('Opening topic selection');
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const ChoosePage()),
     );
 
     if (result != null && result is Map<String, dynamic>) {
+      _logger.info('Topic selected: ${result['name']}');
       setState(() {
         selectedTopic = result;
         gameCode = result['code'] ?? '';
       });
+    } else {
+      _logger.info('No topic selected');
     }
   }
 
   void _kickPlayer(String idUser) {
+    _logger.info('Kicking player with ID: $idUser');
     setState(() {
       players.removeWhere((p) => p['id_user'] == idUser);
     });
@@ -68,6 +78,7 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.fine('Building StartTheGamePage');
     return Scaffold(
       body: Row(
         children: [
@@ -83,6 +94,7 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
 
                 InkWell(
                   onTap: () {
+                    _logger.info('Navigating to TopicsPage');
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => const TopicsPage()),
@@ -104,7 +116,7 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
 
                 InkWell(
                   onTap: () {
-                    // Bleibe hier
+                    _logger.fine('Already on StartTheGamePage');
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
@@ -122,6 +134,7 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
 
                 InkWell(
                   onTap: () {
+                    _logger.info('Navigating to AdminStartseite');
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => const AdminStartseite()),
@@ -145,6 +158,7 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
 
                 InkWell(
                   onTap: () {
+                    _logger.info('Admin logging out');
                     Navigator.pushReplacementNamed(context, '/');
                   },
                   child: Container(
@@ -258,7 +272,7 @@ class _StartTheGamePageState extends State<StartTheGamePage> {
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(
                       onPressed: () {
-                        // TODO: Spiel starten Logik hier
+                        _logger.info('Starting game with topic: ${selectedTopic?['name']}, players: ${players.length}');
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Spiel gestartet!')),
                         );
