@@ -72,18 +72,21 @@ void main() {
 
       // Fill in the topic name
       await tester.enterText(find.widgetWithText(TextField, 'Thema Name'), 'Test Topic');
-      
+
       // Fill in a question
       await tester.enterText(find.widgetWithText(TextField, 'Frage'), 'Test Question');
-      
-      // Fill in options
-      final optionFields = find.byType(TextField).evaluate().where(
-        (element) => element.widget is TextField && 
-        (element.widget as TextField).decoration?.hintText?.startsWith('Option') ?? false
-      );
 
+      // Finde die TextFields mit HintText 'Option...'
+      final optionFields = find.byType(TextField).evaluate().where(
+            (element) =>
+        element.widget is TextField &&
+            (element.widget as TextField).decoration?.hintText?.startsWith('Option') == true,
+      ).toList(); // Wandle in Liste um per Index zugreifen zu können
+
+      // Befülle alle Option-Felder
       for (var i = 0; i < optionFields.length; i++) {
-        await tester.enterText(find.byType(TextField).at(i + 2), 'Option $i');
+        final finder = find.byWidget(optionFields[i].widget);
+        await tester.enterText(finder, 'Option $i');
       }
 
       // Select a correct answer
