@@ -1,6 +1,7 @@
 import connexion
 from supabase import create_client, Client
 from openapi_server.models.antwort import Antwort
+from openapi_server.util import logger
 
 # Supabase Zugangsdaten,
 SUPABASE_URL = "https://bhgvyhekvowmwirfklih.supabase.co"
@@ -21,15 +22,17 @@ def antworten_post(body) -> tuple:
 
             result = supabase.table("Antworten").insert(daten).execute()
 
-            print("Supabase result:", result)
+            logger.info(f"Supabase result: {result}")
 
             if hasattr(result, "error") and result.error:
+                logger.error(f"Fehler beim Speichern: {result.error}")
                 return {"message": f"Fehler beim Speichern: {result.error}"}, 500
 
             return {"message": "Antwort gespeichert"}, 201
         else:
+            logger.warning("Ungültige Eingabe: Keine JSON-Daten")
             return {"message": "Ungültige Eingabe"}, 400
     except Exception as e:
-        print(f"Exception beim Speichern: {e}")
+        logger.exception(f"Exception beim Speichern: {e}")
         return {"message": f"Exception beim Speichern: {str(e)}"}, 500
 

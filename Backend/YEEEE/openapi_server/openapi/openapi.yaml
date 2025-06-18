@@ -10,6 +10,8 @@ paths:
   /auth/admin/register:
     post:
       operationId: auth_admin_register_post
+      description: |
+        Registriert einen neuen Admin. Die E-Mail muss eindeutig sein.
       requestBody:
         content:
           application/json:
@@ -28,6 +30,9 @@ paths:
   /auth/login:
     post:
       operationId: auth_login_post
+      description: |
+        Authentifiziert einen Admin oder User anhand von E-Mail und Passwort.
+        Gibt bei Erfolg einen Token zurück.
       requestBody:
         content:
           application/json:
@@ -46,6 +51,8 @@ paths:
   /auth/user/register:
     post:
       operationId: auth_user_register_post
+      description: |
+        Registriert einen neuen User. Die E-Mail muss eindeutig sein.
       requestBody:
         content:
           application/json:
@@ -64,12 +71,15 @@ paths:
   /themen:
     get:
       operationId: themen_get
+      description: |
+        Gibt eine Liste aller Themen zurück. Optional kann nach öffentlichen Themen gefiltert werden.
       parameters:
         - in: query
           name: public
           required: false
           schema:
             type: boolean
+          description: Wenn true, werden nur öffentliche Themen zurückgegeben.
       responses:
         "200":
           description: Themenliste
@@ -85,6 +95,8 @@ paths:
 
     post:
       operationId: themen_post
+      description: |
+        Legt ein neues Thema an. Nur für Admins möglich.
       requestBody:
         content:
           application/json:
@@ -105,6 +117,8 @@ paths:
   /fragen:
     post:
       operationId: fragen_post
+      description: |
+        Legt eine neue Frage zu einem Thema an. Nur für Admins möglich.
       requestBody:
         content:
           application/json:
@@ -121,6 +135,8 @@ paths:
   /antworten:
     post:
       operationId: antworten_post
+      description: |
+        Legt eine neue Antwort zu einer Frage an. Nur für Admins möglich.
       requestBody:
         content:
           application/json:
@@ -137,6 +153,8 @@ paths:
   /mehrspieler/join:
     post:
       operationId: mehrspieler_join_post
+      description: |
+        Tritt einem Mehrspieler-Quiz über einen Code bei.
       requestBody:
         content:
           application/json:
@@ -155,6 +173,8 @@ paths:
   /mehrspieler/start:
     post:
       operationId: mehrspieler_start_post
+      description: |
+        Startet ein neues Mehrspieler-Quiz für ein Thema. Nur für Admins möglich.
       security:
         - BearerAuth: []
       requestBody:

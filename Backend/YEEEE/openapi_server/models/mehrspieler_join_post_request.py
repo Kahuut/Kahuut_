@@ -4,6 +4,7 @@ from typing import List, Dict  # noqa: F401
 
 from openapi_server.models.base_model import Model
 from openapi_server import util
+from openapi_server.util import logger
 
 
 class MehrspielerJoinPostRequest(Model):
@@ -63,6 +64,7 @@ class MehrspielerJoinPostRequest(Model):
         :type code: str
         """
         if code is None:
+            logger.error("MehrspielerJoinPostRequest: Versuch, code=None zu setzen")
             raise ValueError("Invalid value for `code`, must not be `None`")  # noqa: E501
 
         self._code = code
@@ -86,6 +88,7 @@ class MehrspielerJoinPostRequest(Model):
         :type user_id: str
         """
         if user_id is None:
+            logger.error("MehrspielerJoinPostRequest: Versuch, user_id=None zu setzen")
             raise ValueError("Invalid value for `user_id`, must not be `None`")  # noqa: E501
 
         self._user_id = user_id

@@ -4,6 +4,7 @@ from typing import List, Dict  # noqa: F401
 
 from openapi_server.models.base_model import Model
 from openapi_server import util
+from openapi_server.util import logger
 
 
 class RegisterUser(Model):
@@ -68,6 +69,7 @@ class RegisterUser(Model):
         :type name: str
         """
         if name is None:
+            logger.error("RegisterUser: Versuch, name=None zu setzen")
             raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
 
         self._name = name
@@ -91,6 +93,7 @@ class RegisterUser(Model):
         :type email: str
         """
         if email is None:
+            logger.error("RegisterUser: Versuch, email=None zu setzen")
             raise ValueError("Invalid value for `email`, must not be `None`")  # noqa: E501
 
         self._email = email
@@ -114,6 +117,7 @@ class RegisterUser(Model):
         :type password: str
         """
         if password is None:
+            logger.error("RegisterUser: Versuch, password=None zu setzen")
             raise ValueError("Invalid value for `password`, must not be `None`")  # noqa: E501
 
         self._password = password

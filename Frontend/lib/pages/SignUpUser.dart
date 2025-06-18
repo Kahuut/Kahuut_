@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter2/pages/UserBereich/UserStartseite.dart';
+import 'package:flutter2/auth/session_manager.dart'; // <-- Hier SessionManager importieren
 
 class SignUpAsUserPage extends StatefulWidget {
   const SignUpAsUserPage({super.key});
@@ -24,7 +25,7 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
 
     if (_formKey.currentState!.validate()) {
       try {
-        // Prüfen, ob Name oder E-Mail schon existieren
+        // Existenzprüfung
         final existingUser = await supabase
             .from('User')
             .select()
@@ -38,17 +39,26 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
           return;
         }
 
-        // Einfügen in die DB
+        // Benutzer registrieren
         await supabase.from('User').insert({
           'name': name,
           'email': email,
-          'password': password, // ⚠️ Klartext nur zu Lernzwecken
+          'password': password, // Achtung: Nur zu Lernzwecken im Klartext
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registrierung erfolgreich')),
-        );
+        // Benutzer-ID abrufen
+        final newUser = await supabase
+            .from('User')
+            .select('id_user')
+            .eq('email', email)
+            .maybeSingle();
 
+        if (newUser != null) {
+          SessionManager.currentUserId = newUser['id_user'];
+          print('Registrierte Benutzer-ID: ${SessionManager.currentUserId}');
+        }
+
+        // Navigation zur Startseite
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const UserStartseite()),
@@ -182,7 +192,6 @@ class _SignUpAsUserPageState extends State<SignUpAsUserPage> {
   }
 }
 
-// Placeholder für Microsoft Login
 class MicrosoftLoginPage extends StatelessWidget {
   const MicrosoftLoginPage({super.key});
 
@@ -191,7 +200,7 @@ class MicrosoftLoginPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Microsoft Anmeldung'),
-        backgroundColor: Colors.blue[800],
+        backgroundColor: Colors.blue,
       ),
       body: const Center(
         child: Text(

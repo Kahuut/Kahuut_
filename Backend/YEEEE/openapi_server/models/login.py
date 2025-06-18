@@ -4,6 +4,7 @@ from typing import List, Dict  # noqa: F401
 
 from openapi_server.models.base_model import Model
 from openapi_server import util
+from openapi_server.util import logger
 
 
 class Login(Model):
@@ -63,6 +64,7 @@ class Login(Model):
         :type email: str
         """
         if email is None:
+            logger.error("Login: Versuch, email=None zu setzen")
             raise ValueError("Invalid value for `email`, must not be `None`")  # noqa: E501
 
         self._email = email
@@ -86,6 +88,7 @@ class Login(Model):
         :type password: str
         """
         if password is None:
+            logger.error("Login: Versuch, password=None zu setzen")
             raise ValueError("Invalid value for `password`, must not be `None`")  # noqa: E501
 
         self._password = password

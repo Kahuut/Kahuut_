@@ -3,6 +3,7 @@ from typing import Union, Tuple, Dict
 from openapi_server.models.mehrspieler_join_post_request import MehrspielerJoinPostRequest  # noqa: E501
 from openapi_server.models.mehrspieler_start_post_request import MehrspielerStartPostRequest  # noqa: E501
 from supabase import create_client, Client
+from openapi_server.util import logger
 
 # Supabase Zugangsdaten
 SUPABASE_URL = "https://bhgvyhekvowmwirfklih.supabase.co"
@@ -58,8 +59,8 @@ def mehrspieler_start_post(body) -> Union[Dict, Tuple[Dict, int]]:
 
     except Exception as e:
         import traceback
-        print("Fehler beim Starten des Spiels:", e)
-        print(traceback.format_exc())
+        logger.error(f"Fehler beim Starten des Spiels: {e}")
+        logger.error(traceback.format_exc())
         return {"message": f"Fehler beim Starten des Spiels: {str(e)}"}, 500
 
 
@@ -115,6 +116,6 @@ def mehrspieler_join_post(body) -> Union[Dict, Tuple[Dict, int]]:
 
     except Exception as e:
         import traceback
-        print("Fehler beim Spieler hinzufügen:", e)
-        print(traceback.format_exc())
+        logger.error(f"Fehler beim Spieler hinzufügen: {e}")
+        logger.error(traceback.format_exc())
         return {"message": f"Fehler: {str(e)}"}, 500

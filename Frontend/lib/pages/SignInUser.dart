@@ -35,17 +35,17 @@ class _SignInAsUserPageState extends State<SignInAsUserPage> {
             .maybeSingle();
 
         if (response != null) {
-          // ID aus Supabase-Antwort extrahieren
-          SessionManager.currentUserId = response['user_id']; // ⬅️ ID-Feld aus deiner Tabelle
+          SessionManager.currentUserId = response['id_user']; // KORREKT
           print('Gespeicherte User-ID: ${SessionManager.currentUserId}');
-          // <-- hier
 
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const HomePage()),
           );
+        }
 
-        } else {
+
+       else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Ungültige Anmeldedaten')),
           );

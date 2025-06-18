@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter2/auth/session_manager.dart'; // <-- Pfad ggf. anpassen
+import 'package:flutter2/auth/session_manager.dart'; // <-- SessionManager
 import 'sidebar.dart';
 import 'home.dart';
 
@@ -26,6 +26,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _loadUserData() async {
     final userId = SessionManager.currentUserId;
+    print("Aktuelle User-ID: $userId");
 
     if (userId == null) return;
 
@@ -33,8 +34,10 @@ class _SettingsPageState extends State<SettingsPage> {
       final response = await supabase
           .from('User')
           .select()
-          .eq('id', userId)
+          .eq('id_user', userId)
           .maybeSingle();
+
+      print("Geladene Userdaten: $response");
 
       if (response != null) {
         setState(() {
@@ -59,9 +62,10 @@ class _SettingsPageState extends State<SettingsPage> {
           .update({
         'name': _nameController.text,
         'email': _emailController.text,
-        if (_passwordController.text.isNotEmpty) 'password': _passwordController.text,
+        if (_passwordController.text.isNotEmpty)
+          'password': _passwordController.text,
       })
-          .eq('id', userId);
+          .eq('id_user', userId);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Änderungen gespeichert')),

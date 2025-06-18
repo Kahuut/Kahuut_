@@ -4,6 +4,7 @@ from typing import List, Dict  # noqa: F401
 
 from openapi_server.models.base_model import Model
 from openapi_server import util
+from openapi_server.util import logger
 
 
 class RegisterAdmin(Model):
@@ -61,15 +62,9 @@ class RegisterAdmin(Model):
 
     @name.setter
     def name(self, name: str):
-        """Sets the name of this RegisterAdmin.
-
-
-        :param name: The name of this RegisterAdmin.
-        :type name: str
-        """
         if name is None:
+            logger.error("RegisterAdmin: Versuch, name=None zu setzen")
             raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
-
         self._name = name
 
     @property
@@ -84,15 +79,9 @@ class RegisterAdmin(Model):
 
     @email.setter
     def email(self, email: str):
-        """Sets the email of this RegisterAdmin.
-
-
-        :param email: The email of this RegisterAdmin.
-        :type email: str
-        """
         if email is None:
+            logger.error("RegisterAdmin: Versuch, email=None zu setzen")
             raise ValueError("Invalid value for `email`, must not be `None`")  # noqa: E501
-
         self._email = email
 
     @property
@@ -107,13 +96,7 @@ class RegisterAdmin(Model):
 
     @password.setter
     def password(self, password: str):
-        """Sets the password of this RegisterAdmin.
-
-
-        :param password: The password of this RegisterAdmin.
-        :type password: str
-        """
         if password is None:
+            logger.error("RegisterAdmin: Versuch, password=None zu setzen")
             raise ValueError("Invalid value for `password`, must not be `None`")  # noqa: E501
-
         self._password = password

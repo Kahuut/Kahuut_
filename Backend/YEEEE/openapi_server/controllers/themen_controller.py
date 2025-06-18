@@ -5,6 +5,7 @@ from supabase import create_client, Client
 import connexion
 from openapi_server.models.thema import Thema
 from typing import Union, Tuple, Dict
+from openapi_server.util import logger
 
 # Supabase Zugangsdaten
 SUPABASE_URL = "https://bhgvyhekvowmwirfklih.supabase.co"
@@ -27,7 +28,7 @@ def themen_get(public=None):
         else:
             response = supabase.table("Themen").select("*").execute()
 
-        print("GET Ergebnis:", response.data)
+        logger.info(f"GET Ergebnis: {response.data}")
 
         # Konvertiere Daten zu Thema-Objekten
         themen_list = []
@@ -42,7 +43,7 @@ def themen_get(public=None):
         return themen_list, 200
 
     except Exception as e:
-        print("Fehler beim Abrufen:", e)
+        logger.exception(f"Fehler beim Abrufen: {e}")
         return {"message": f"Fehler beim Abrufen: {str(e)}"}, 500
 
 
@@ -79,9 +80,9 @@ def themen_post(body) -> Union[None, Tuple[None, int], Tuple[None, int, Dict[str
 
     try:
         res = supabase.table("Themen").insert(insert_data).execute()
-        print("Insert Ergebnis:", res.data)
+        logger.info(f"Insert Ergebnis: {res.data}")
         # Kein Zugriff auf status_code oder error — Exception wird geworfen bei Fehlern
         return None, 201
     except Exception as e:
-        print("Exception beim Speichern:", str(e))
+        logger.exception(f"Exception beim Speichern: {str(e)}")
         return {"message": f"Fehler beim Speichern: {str(e)}"}, 500
